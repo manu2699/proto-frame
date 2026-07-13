@@ -41,7 +41,7 @@ function Dev() {
   return (
     <>
       <div className="wfdev-bar">
-        <span className="wfdev-label">DEV</span>
+        <span className="wfdev-label" title="Development mode - uses in-memory storage and a no-op transport. Comments reset on reload; 'Send feedback' copies to clipboard instead of streaming to an agent.">DEV</span>
         {exampleList.map((e) => (
           <button
             key={e.slug}

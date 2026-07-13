@@ -242,6 +242,15 @@ const MCP_NAME = PKG_NAME; // "proto-frames"
 const MCP_SERVER = { command: "npx", args: ["-y", "proto-frames", "serve"] };
 
 const MCP_TARGETS = {
+  claude: {
+    // User-scope MCP servers live in ~/.claude.json under a top-level "mcpServers"
+    // key — same place `claude mcp add --scope user` writes. Registering here makes
+    // the server available in every project, matching the global skill install.
+    label: "Claude Code (user)",
+    format: "json",
+    key: "mcpServers",
+    file: () => path.join(os.homedir(), ".claude.json"),
+  },
   "claude-project": {
     label: "Claude Code (project)",
     format: "json",
@@ -468,7 +477,10 @@ if (cmd === "install") {
     writePlatform(t, PLATFORMS[t]);
     if (MCP_TARGETS[t]) registerMcp(t, MCP_TARGETS[t]);
   }
-  console.log("\nDone. Restart your agent to pick up the skill.");
+  console.log(
+    "\nDone. Restart your agent to pick up the skill and MCP server." +
+    "\nClaude Code may prompt to approve the new MCP server on next launch — accept it, or the wireframe tools won't be available.",
+  );
   process.exit(0);
 }
 

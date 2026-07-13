@@ -10,6 +10,7 @@ import {
   Server, Component, Sparkle
 } from "../components/ui/icons";
 import { Popover, PopoverTrigger, PopoverContent } from "../components/ui/popover";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../components/ui/tooltip";
 import { Mode, DrawMode } from "../hooks/useNav";
 import { SHORTCUTS } from "../hooks/useShortcuts";
 import { cn } from "../lib/utils";
@@ -145,15 +146,19 @@ export function Header(props: {
       {/* Right controls: tweaks popover + theme + collapse toggle */}
       <div className="flex shrink-0 items-center gap-1 border-l border-border px-2">
         <Popover>
-          <PopoverTrigger asChild>
-            <button
-              aria-label="Tweaks & Settings"
-              title="Tweaks & Settings"
-              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-            >
-              <Sliders className="size-4" />
-            </button>
-          </PopoverTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <button
+                  aria-label="Tweaks & Settings"
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+                >
+                  <Sliders className="size-4" />
+                </button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Modes &amp; shortcuts</TooltipContent>
+          </Tooltip>
           <PopoverContent align="end" className="w-80 flex flex-col gap-4 p-4 z-[1200]">
             {/* Mode controls */}
             <div className="flex flex-col gap-2.5">
@@ -215,28 +220,40 @@ export function Header(props: {
           </PopoverContent>
         </Popover>
 
-        <button
-          onClick={props.onTheme}
-          aria-label="Toggle theme"
-          title="Toggle theme  (D)"
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-        >
-          {props.theme === "dark"
-            ? <Sun className="size-4" />
-            : <Moon className="size-4" />}
-        </button>
-        <button
-          onClick={props.onToggleCollapse}
-          aria-label={props.reviewCollapsed ? "Expand panel" : "Collapse panel"}
-          title={props.reviewCollapsed ? "Expand panel  (\\)" : "Collapse panel  (\\)"}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
-        >
-          {props.reviewCollapsed ? (
-            <PanelRightOpen className="size-4" />
-          ) : (
-            <PanelRightClose className="size-4" />
-          )}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={props.onTheme}
+              aria-label="Toggle theme"
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+            >
+              {props.theme === "dark"
+                ? <Sun className="size-4" />
+                : <Moon className="size-4" />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {props.theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} <kbd className="ml-1 rounded border border-foreground/20 bg-foreground/10 px-1 font-mono text-[10px]">D</kbd>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={props.onToggleCollapse}
+              aria-label={props.reviewCollapsed ? "Expand review panel" : "Collapse review panel"}
+              className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+            >
+              {props.reviewCollapsed ? (
+                <PanelRightOpen className="size-4" />
+              ) : (
+                <PanelRightClose className="size-4" />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {props.reviewCollapsed ? "Show" : "Hide"} review panel <kbd className="ml-1 rounded border border-foreground/20 bg-foreground/10 px-1 font-mono text-[10px]">\</kbd>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </header>
   );

@@ -4,6 +4,7 @@
 import { Check, MessageSquare, X } from "../components/ui/icons";
 import type { Comment } from "../types";
 import { Button } from "../components/ui/button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "../components/ui/tooltip";
 
 export function ReviewSidebar(props: {
   comments: Record<string, Comment>;
@@ -79,18 +80,44 @@ export function ReviewSidebar(props: {
       {/* Sticky footer */}
       <div className="flex shrink-0 flex-col gap-2 border-t border-border px-4 py-3">
         <div className="flex items-center justify-end min-h-[14px]">
-          <span className={`inline-flex items-center gap-1 text-[10px] ${props.connected ? "text-emerald-600" : "text-amber-500"}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${props.connected ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`} />
-            {props.connected ? "Live" : "Disconnected"}
-          </span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className={`inline-flex cursor-default items-center gap-1 text-[10px] ${props.connected ? "text-emerald-600" : "text-amber-500"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${props.connected ? "bg-emerald-500 animate-pulse" : "bg-amber-400"}`} />
+                {props.connected ? "Live" : "Disconnected"}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              {props.connected
+                ? "Connected to the MCP server — feedback streams directly to the agent."
+                : "MCP server not reachable. Feedback and approvals will be copied to the clipboard instead."}
+            </TooltipContent>
+          </Tooltip>
         </div>
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={props.onFeedback} title={props.connected ? undefined : "Agent not connected — block will be copied to clipboard"}>
-            Send feedback
-          </Button>
-          <Button variant="approve" className="flex-1" onClick={props.onApprove} title={props.connected ? undefined : "Agent not connected — block will be copied to clipboard"}>
-            <Check className="h-3.5 w-3.5" /> Approve
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button className="flex-1" onClick={props.onFeedback}>
+                Send feedback
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {props.connected
+                ? "Send all comments to the agent as a structured feedback block."
+                : "Copy a structured feedback block to the clipboard (agent offline)."}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="approve" className="flex-1" onClick={props.onApprove}>
+                <Check className="h-3.5 w-3.5" /> Approve
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Approve this prototype to confirm screens and backend mapping are correct.
+              The agent will produce an implementation plan and wait for your approval before building.
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </aside>

@@ -318,6 +318,7 @@ const model: WFModel = {
     {
       id: "screen_content_media",
       name: "6. Content & Media",
+      role: "detail",
       nodes: [
         {
           col: [
@@ -347,6 +348,7 @@ const model: WFModel = {
     {
       id: "screen_layout_modifiers",
       name: "7. Layout & Modifiers",
+      role: "settings",
       nodes: [
         {
           col: [
