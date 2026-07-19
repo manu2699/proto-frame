@@ -4,12 +4,13 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
-import { useSketchBorder } from "../../SketchBorder";
+import { SketchBorder, useSketchBorder } from "../../SketchBorder";
 
 export function SliderBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const min = n.min ?? 0;
   const max = n.max ?? 100;
@@ -34,8 +35,15 @@ export function SliderBox(props: { node: WFNode & { _id?: string } }) {
           <span className="wf-slider-value">{val}</span>
         </div>
         <div className="wf-slider-track h-1 w-full relative rounded-[2px]">
-          <div className="wf-slider-track-fill h-full rounded-[2px]" style={{ width: `${pct}%` }} />
-          <div className="wf-slider-thumb w-3 h-3 absolute top-1/2 rounded-full" style={{ left: `${pct}%` }} />
+          {isSketch && <SketchBorder />}
+          {pct > 0 && (
+            <div className="wf-slider-track-fill h-full rounded-[2px] relative" style={{ width: `${pct}%` }}>
+              {isSketch && <SketchBorder fill="var(--wf-ink)" stroke="var(--wf-ink)" fillStyle="hachure" />}
+            </div>
+          )}
+          <div className="wf-slider-thumb w-3 h-3 absolute top-1/2 rounded-full" style={{ left: `${pct}%` }}>
+            {isSketch && <SketchBorder shape="circle" />}
+          </div>
         </div>
       </div>
       <FlowTag goto={n.goto} opens={n.opens} action={n.action} />

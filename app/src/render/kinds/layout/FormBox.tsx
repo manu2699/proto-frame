@@ -4,12 +4,13 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
-import { useSketchBorder } from "../../SketchBorder";
+import { SketchBorder, useSketchBorder } from "../../SketchBorder";
 
 export function FormBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
   const fields = n.fields || [];
 
   const fcols = Math.max(...fields.map((f) => f.cols || 1), 1);
@@ -42,25 +43,32 @@ export function FormBox(props: { node: WFNode & { _id?: string } }) {
               >
                 <label className="wf-field-label">{f.label}</label>
                 {fieldType === "text" && (
-                  <div className="wf-field-input wf-input-text h-8 w-full relative" />
+                  <div className="wf-field-input wf-input-text h-8 w-full relative">
+                    {isSketch && <SketchBorder />}
+                  </div>
                 )}
                 {fieldType === "select" && (
                   <div className="wf-field-input wf-input-select h-8 w-full relative flex items-center justify-end pr-2">
+                    {isSketch && <SketchBorder />}
                     <span className="wf-select-arrow">▾</span>
                   </div>
                 )}
                 {fieldType === "textarea" && (
-                  <div className="wf-field-input wf-input-textarea h-16 w-full relative" />
+                  <div className="wf-field-input wf-input-textarea h-16 w-full relative">
+                    {isSketch && <SketchBorder />}
+                  </div>
                 )}
                 {fieldType === "toggle" && (
                   <div className="wf-field-toggle-container flex items-center h-8">
                     <div className={"wf-toggle-switch w-9 h-5 relative p-0.5" + (f.checked ? " wf-toggle-checked" : "")}>
+                      {isSketch && <SketchBorder />}
                       <div className="wf-toggle-knob w-3.5 h-3.5" />
                     </div>
                   </div>
                 )}
                 {fieldType === "datepicker" && (
-                  <div className="wf-field-input wf-datepicker-field flex justify-between items-center px-2.5 h-8">
+                  <div className="wf-field-input wf-datepicker-field flex justify-between items-center px-2.5 h-8 relative">
+                    {isSketch && <SketchBorder />}
                     <span className="wf-datepicker-value">{f.dateValue || "Select date..."}</span>
                     <svg className="wf-datepicker-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "14px", height: "14px", color: "var(--wf-muted)" }}>
                       <rect x="2" y="3" width="12" height="11" rx="1" />
@@ -71,7 +79,8 @@ export function FormBox(props: { node: WFNode & { _id?: string } }) {
                   </div>
                 )}
                 {fieldType === "upload" && (
-                  <div className="wf-field-input wf-upload-field flex flex-col items-center justify-center min-h-[80px] p-2.5 w-full">
+                  <div className="wf-field-input wf-upload-field flex flex-col items-center justify-center min-h-[80px] p-2.5 w-full relative">
+                    {isSketch && <SketchBorder />}
                     <svg className="wf-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ width: "24px", height: "24px", color: "var(--wf-muted)", marginBottom: "4px" }}>
                       <path d="M18 10h-.7c-.3-2.5-2.4-4.5-4.9-4.5-2.2 0-4.1 1.5-4.7 3.6-2.1.3-3.7 2.1-3.7 4.3C4 15.8 6.2 18 9 18h9c2.2 0 4-1.8 4-4s-1.8-4-4-4z" />
                       <path d="M12 12v4M10 14l2-2 2 2" />

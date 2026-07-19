@@ -1,6 +1,6 @@
 {
   "name": "proto-frames",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Turn a feature description into interactive mid-fidelity wireframes and prototypes, installable in any AI agent harness.",
   "type": "module",
   "bin": {
@@ -15,8 +15,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "gen:sketch": "node scripts/gen-sketch-borders.mjs",
-    "build": "npm run gen:sketch && tailwindcss -i app/styles/index.css -o assets/wireframe.css --minify && vite build",
+    "build": "tailwindcss -i app/styles/index.css -o assets/wireframe.css --minify && vite build",
     "prepublishOnly": "npm run build",
     "test": "node test/smoke.mjs && node test/cli-mcp.mjs"
   },

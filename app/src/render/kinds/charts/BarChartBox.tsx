@@ -5,11 +5,14 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { useSketchLine } from "../../sketch/SketchLine";
 
 export function BarChartBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const axisYLine = useSketchLine({ edge: "left" });
+  const axisXLine = useSketchLine({ edge: "bottom" });
 
   const defaultData = [
     { label: "A", value: 40 },
@@ -37,8 +40,8 @@ export function BarChartBox(props: { node: WFNode & { _id?: string } }) {
       <div className="wf-chart-container flex flex-col w-full h-full gap-2 items-stretch">
         {n.label && <span className="wf-chart-label">{n.label}</span>}
         <div className="wf-chart-body wf-barchart-body relative flex-1 w-full min-h-[120px] flex flex-col justify-end">
-          <div className="wf-chart-axis-y absolute left-0 top-0 bottom-[20px] z-[1]" />
-          <div className="wf-chart-axis-x absolute left-0 right-0 bottom-[20px] z-[1]" />
+          <div className="wf-chart-axis-y absolute left-0 top-0 bottom-[20px] z-[1]">{axisYLine}</div>
+          <div className="wf-chart-axis-x absolute left-0 right-0 bottom-[20px] z-[1]">{axisXLine}</div>
           <div className="wf-chart-bars flex justify-around items-end h-full pl-2.5 pb-[20px] z-[2] relative">
             {data.map((d, i) => {
               const valPct = (d.value / maxVal) * 100;

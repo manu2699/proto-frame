@@ -5,12 +5,15 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { Node } from "../../Node";
-import { useSketchBorder } from "../../SketchBorder";
+import { SketchBorder, useSketchBorder } from "../../SketchBorder";
+import { useSketchLine } from "../../sketch/SketchLine";
 
 export function CardBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const footerLine = useSketchLine({ edge: "top" });
+  const isSketch = wf.drawMode() === "sketch";
 
   const hasMeta = n.meta && n.meta.length > 0;
   const hasBadges = n.badges && n.badges.length > 0;
@@ -46,7 +49,8 @@ export function CardBox(props: { node: WFNode & { _id?: string } }) {
         {hasBadges && (
           <div className="wf-card-badge-row flex flex-wrap gap-1.5">
             {n.badges!.map((b, idx) => (
-              <span key={idx} className="wf-card-badge py-0.5 px-1.5 rounded-[4px]">
+              <span key={idx} className="wf-card-badge py-0.5 px-1.5 rounded-[4px] relative">
+                {isSketch && <SketchBorder />}
                 {b}
               </span>
             ))}
@@ -62,7 +66,8 @@ export function CardBox(props: { node: WFNode & { _id?: string } }) {
         )}
 
         {hasStats && (
-          <div className="wf-card-footer flex justify-between items-center border-t border-[var(--wf-c-line)] pt-2 mt-0.5">
+          <div className="wf-card-footer flex justify-between items-center border-t border-[var(--wf-c-line)] pt-2 mt-0.5 relative">
+            {footerLine}
             {n.stats!.map((s, idx) => (
               <span key={idx} className="wf-card-stat">
                 {s}

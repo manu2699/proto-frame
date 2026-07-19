@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
 @import "tailwindcss";
 @import "./chrome.css";
-@import "./sketch-borders.css";
 @import "./wireframe.css";
 
 /* Scan the React source for utility classes (dist/ and node_modules excluded). */

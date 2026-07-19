@@ -5,11 +5,13 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { SketchRadio } from "../../sketch/SketchGlyph";
 
 export function RadioGroupBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const options = n.options || [];
   const selected = n.selected ?? 0;
@@ -33,7 +35,9 @@ export function RadioGroupBox(props: { node: WFNode & { _id?: string } }) {
             const isSelected = i === selected;
             return (
               <div key={i} className="wf-radiogroup-row flex items-center gap-2">
-                <span className="wf-radiogroup-indicator leading-none shrink-0">{isSelected ? "◉" : "○"}</span>
+                <span className="wf-radiogroup-indicator leading-none shrink-0">
+                  {isSketch ? <SketchRadio selected={isSelected} /> : (isSelected ? "◉" : "○")}
+                </span>
                 <span className="wf-radiogroup-text">{opt}</span>
               </div>
             );

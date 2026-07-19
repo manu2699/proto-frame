@@ -4,12 +4,13 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
-import { useSketchBorder } from "../../SketchBorder";
+import { SketchBorder, useSketchBorder } from "../../SketchBorder";
 
 export function AccordionBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const sections = n.sections || [];
 
@@ -29,7 +30,8 @@ export function AccordionBox(props: { node: WFNode & { _id?: string } }) {
         {sections.map((section, i) => {
           const isExpanded = !!section.expanded;
           return (
-            <div key={i} className="wf-accordion-section flex flex-col">
+            <div key={i} className="wf-accordion-section flex flex-col relative">
+              {isSketch && <SketchBorder />}
               <div className="wf-accordion-header flex justify-between items-center py-2 px-3">
                 <span className="wf-accordion-title flex-1">{section.title}</span>
                 <span className="wf-accordion-chevron">{isExpanded ? "▾" : "▸"}</span>

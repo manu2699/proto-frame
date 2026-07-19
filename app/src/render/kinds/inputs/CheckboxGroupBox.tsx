@@ -5,11 +5,13 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { SketchCheckbox } from "../../sketch/SketchGlyph";
 
 export function CheckboxGroupBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const options = n.options || [];
   const checkedItems = n.checkedItems || [];
@@ -33,7 +35,9 @@ export function CheckboxGroupBox(props: { node: WFNode & { _id?: string } }) {
             const isChecked = checkedItems.includes(i);
             return (
               <div key={i} className="wf-checkboxgroup-row flex items-center gap-2">
-                <span className="wf-checkboxgroup-indicator leading-none shrink-0">{isChecked ? "☑" : "☐"}</span>
+                <span className="wf-checkboxgroup-indicator leading-none shrink-0">
+                  {isSketch ? <SketchCheckbox checked={isChecked} /> : (isChecked ? "☑" : "☐")}
+                </span>
                 <span className="wf-checkboxgroup-text">{opt}</span>
               </div>
             );

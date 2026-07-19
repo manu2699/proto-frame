@@ -4,10 +4,12 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
+import { SketchLine } from "../../sketch/SketchLine";
 
 export function StepperBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
+  const isSketch = wf.drawMode() === "sketch";
 
   const steps = n.steps || [];
   const activeStep = n.activeStep ?? 0;
@@ -65,10 +67,12 @@ export function StepperBox(props: { node: WFNode & { _id?: string } }) {
               {!isLast && (
                 <div
                   className={
-                    "wf-stepper-connector h-[2px] flex-1 min-w-[16px]" +
+                    "wf-stepper-connector h-[2px] flex-1 min-w-[16px] relative" +
                     (i < activeStep ? " wf-connector-filled" : "")
                   }
-                />
+                >
+                  {isSketch && <SketchLine edge="top" />}
+                </div>
               )}
             </div>
           );

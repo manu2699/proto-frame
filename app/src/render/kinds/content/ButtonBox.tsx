@@ -9,7 +9,7 @@ import { useSketchBorder } from "../../SketchBorder";
 export function ButtonBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
-  const sketchBorder = useSketchBorder();
+  const sketchBorder = useSketchBorder({ fill: "var(--wf-ink)", stroke: "var(--wf-bg)" });
 
   const box = (
     <div

@@ -5,11 +5,13 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { useSketchLine } from "../../sketch/SketchLine";
 
 export function TimelineBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const timelineLine = useSketchLine({ edge: "left" });
 
   const events = n.events || [];
 
@@ -26,7 +28,9 @@ export function TimelineBox(props: { node: WFNode & { _id?: string } }) {
       {sketchBorder}
       <Pin id={n._id} />
       <div className="wf-timeline-content flex flex-col gap-4 w-full relative">
-        <div className="wf-timeline-line absolute left-1.5 top-1 bottom-1 w-0.5" />
+        <div className="wf-timeline-line absolute left-1.5 top-1 bottom-1 w-0.5">
+          {timelineLine}
+        </div>
         {events.map((event, i) => (
           <div key={i} className="wf-timeline-event flex items-start gap-3 w-full relative z-10">
             <div className="wf-timeline-dot w-3.5 h-3.5 shrink-0 mt-0.5 rounded-full" />

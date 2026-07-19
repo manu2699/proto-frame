@@ -4,12 +4,13 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
-import { useSketchBorder } from "../../SketchBorder";
+import { SketchBorder, useSketchBorder } from "../../SketchBorder";
 
 export function ProgressBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const percent = Math.min(100, Math.max(0, n.percent ?? 0));
 
@@ -31,7 +32,12 @@ export function ProgressBox(props: { node: WFNode & { _id?: string } }) {
           <span className="wf-progress-text">{percent}%</span>
         </div>
         <div className="wf-progress-track h-2 w-full overflow-hidden relative">
-          <div className="wf-progress-fill h-full" style={{ width: `${percent}%` }} />
+          {isSketch && <SketchBorder />}
+          {percent > 0 && (
+            <div className="wf-progress-fill h-full relative" style={{ width: `${percent}%` }}>
+              {isSketch && <SketchBorder fill="var(--wf-ink)" stroke="var(--wf-ink)" fillStyle="hachure" />}
+            </div>
+          )}
         </div>
       </div>
       <FlowTag goto={n.goto} opens={n.opens} action={n.action} />

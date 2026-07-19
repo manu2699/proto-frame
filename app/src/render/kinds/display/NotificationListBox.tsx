@@ -5,11 +5,13 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { SketchLine } from "../../sketch/SketchLine";
 
 export function NotificationListBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const isSketch = wf.drawMode() === "sketch";
 
   const notifications = n.notifications || [];
 
@@ -30,11 +32,13 @@ export function NotificationListBox(props: { node: WFNode & { _id?: string } }) 
         <div className="wf-notification-items flex flex-col">
           {notifications.map((item, i) => {
             const isUnread = !!item.unread;
+            const isLast = i === notifications.length - 1;
             return (
               <div
                 key={i}
-                className={"wf-notification-item flex items-start gap-2 py-2 px-0 border-b border-[var(--wf-c-line)] last:border-b-0" + (isUnread ? " wf-notification-unread" : "")}
+                className={"wf-notification-item flex items-start gap-2 py-2 px-0 border-b border-[var(--wf-c-line)] last:border-b-0 relative" + (isUnread ? " wf-notification-unread" : "")}
               >
+                {isSketch && !isLast && <SketchLine edge="bottom" />}
                 <div className="wf-notification-indicator w-3 shrink-0 flex items-center justify-center h-4">
                   {isUnread && <span className="wf-notification-dot leading-none">●</span>}
                 </div>

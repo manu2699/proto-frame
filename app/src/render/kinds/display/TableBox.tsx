@@ -7,6 +7,7 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { DEFAULT_STROKE_WIDTH, LINE_BOWING, LINE_ROUGHNESS, drawRoughLine, resolveStrokeAndFill } from "../../sketch/roughDraw";
 import rough from "roughjs";
 
 function SketchTableLines({ containerRef }: { containerRef: RefObject<HTMLDivElement | null> }) {
@@ -27,24 +28,42 @@ function SketchTableLines({ containerRef }: { containerRef: RefObject<HTMLDivEle
       svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
       while (svg.firstChild) svg.removeChild(svg.firstChild);
 
-      const stroke = getComputedStyle(container).color;
+      const { stroke } = resolveStrokeAndFill(container);
       const rc = rough.svg(svg);
-      const opts = { roughness: 1.125, strokeWidth: 1.0, bowing: 0.6, stroke };
 
       const rows = Array.from(container.children).filter(
         (el) => (el as HTMLElement).tagName.toUpperCase() !== "SVG"
       ) as HTMLElement[];
 
-      // horizontal lines between rows (offsetTop relative to position:relative container)
-      rows.slice(1).forEach((row) => {
-        svg.appendChild(rc.line(0, row.offsetTop, w, row.offsetTop, opts));
+      // horizontal lines between rows (offsetTop relative to position:relative container).
+      // Header/body divider (index 0) gets a heavier stroke now that .wf-th's own
+      // background is stripped, for visual differentiation from row dividers.
+      rows.slice(1).forEach((row, idx) => {
+        const isHeaderDivider = idx === 0;
+        svg.appendChild(
+          drawRoughLine(rc, 0, row.offsetTop, w, row.offsetTop, {
+            roughness: LINE_ROUGHNESS,
+            bowing: LINE_BOWING,
+            stroke,
+            strokeWidth: isHeaderDivider ? DEFAULT_STROKE_WIDTH * 1.5 : DEFAULT_STROKE_WIDTH,
+            seed: Math.floor(row.offsetTop * 5 + idx * 13),
+          }),
+        );
       });
 
       // vertical lines between columns (offsetLeft of header cells relative to container)
       if (rows.length > 0) {
         const cells = Array.from(rows[0].children) as HTMLElement[];
-        cells.slice(1).forEach((cell) => {
-          svg.appendChild(rc.line(cell.offsetLeft, 0, cell.offsetLeft, h, opts));
+        cells.slice(1).forEach((cell, idx) => {
+          svg.appendChild(
+            drawRoughLine(rc, cell.offsetLeft, 0, cell.offsetLeft, h, {
+              roughness: LINE_ROUGHNESS,
+              bowing: LINE_BOWING,
+              stroke,
+              strokeWidth: DEFAULT_STROKE_WIDTH,
+              seed: Math.floor(cell.offsetLeft * 5 + idx * 13),
+            }),
+          );
         });
       }
     };

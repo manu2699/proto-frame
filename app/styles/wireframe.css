@@ -415,8 +415,15 @@
     color: var(--wf-muted);
   }
 
-  /* ── Toggle (shared by form-field variant and standalone Toggle kind) ── */
+  /* ── Toggle (shared by form-field variant and standalone Toggle kind) ──
+     Both call sites render the same 36×20 track / 14×14 knob / 2px padding
+     (w-9 h-5, w-3.5 h-3.5, p-0.5), so the checked-state travel distance is
+     one fixed value — expressed via calc() from those dimensions so it's
+     self-documenting instead of a bare magic number. */
   .wf-toggle-switch {
+    --wf-toggle-w: 36px;
+    --wf-toggle-knob: 14px;
+    --wf-toggle-pad: 2px;
     background: var(--wf-fill);
     border: 1px solid var(--wf-line);
     border-radius: 999px;
@@ -440,7 +447,7 @@
     border-color: var(--wf-ink);
 
     & .wf-toggle-knob {
-      transform: translateX(16px);
+      transform: translateX(calc(var(--wf-toggle-w) - var(--wf-toggle-knob) - 2 * var(--wf-toggle-pad)));
       background: var(--wf-bg);
     }
   }
@@ -1031,7 +1038,6 @@
      ═══════════════════════════════════════════════════════════ */
   [data-drawmode="sketch"] {
     --wf-fs-base: 1.3rem;
-    --wf-radius: 0px;
 
     /* Override dialog and modal container fonts and borders */
     &.wf-dialog-content,
@@ -1064,7 +1070,7 @@
       border-color: transparent;
       isolation: isolate;
     }
-    & .wf-box:has(> svg.wf-sketch-border):not(.wf-button-box):not(.wf-badge-box):not(.wf-nav-active) {
+    & .wf-box:has(> svg.wf-sketch-border):not(.wf-badge-box):not(.wf-nav-active) {
       background: none;
     }
 
@@ -1089,90 +1095,28 @@
       background: transparent;
     }
 
-    /* ── Sketch inner elements: rectangular border-image ── */
-    & .wf-field-input,
-    & .wf-chat-input-placeholder,
-    & .wf-pagination-btn,
-    & .wf-accordion-section,
-    & .wf-modal-footer-btn {
-      border-image: var(--sk-rect-1) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-      background: transparent;
+    /* Any non-.wf-box element that mounts its own rough.js border (form
+       fields, badges, toggle switch, slider thumb, progress track, pagination
+       buttons, accordion sections, modal footer buttons, chat bubbles) loses
+       its flat CSS border — the SVG draws it instead. Radius is left alone:
+       SketchBorder reads it directly to size the rough rect's own corners. */
+    & :has(> svg.wf-sketch-border):not(.wf-box) {
+      border-color: transparent;
+      isolation: isolate;
     }
-    & .wf-field-input:nth-child(4n+2),
-    & .wf-chat-input-placeholder:nth-child(4n+2),
-    & .wf-pagination-btn:nth-child(4n+2) { border-image-source: var(--sk-rect-2); }
-    & .wf-field-input:nth-child(4n+3),
-    & .wf-chat-input-placeholder:nth-child(4n+3),
-    & .wf-pagination-btn:nth-child(4n+3) { border-image-source: var(--sk-rect-3); }
-    & .wf-field-input:nth-child(4n),
-    & .wf-chat-input-placeholder:nth-child(4n),
-    & .wf-pagination-btn:nth-child(4n)    { border-image-source: var(--sk-rect-4); }
 
-    /* search filter chips — pill shape; keep natural rounded border, no sketch rect */
+    /* search filter chips / nav badges — pill shape; keep natural rounded border, no rough.js */
     & .wf-search-filter-chip {
       border: 1px solid var(--wf-ink);
       background: transparent;
     }
-
-    /* card badges — small rounded rect; sketch rect OK */
-    & .wf-card-badge {
-      border-image: var(--sk-rect-4) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-    }
-
-    /* nav badges — pill shape; keep natural rounded border */
     & .wf-nav-badge {
       border: 1px solid var(--wf-ink);
       border-radius: 999px;
       background: transparent;
     }
 
-    /* toggle: replace pill with sketchy rect; knob also squared */
-    & .wf-toggle-switch {
-      border-image: var(--sk-rect-3) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-    }
-    & .wf-toggle-knob {
-      border-radius: 0;
-    }
-
-    /* slider thumb */
-    & .wf-slider-thumb {
-      border-image: var(--sk-rect-2) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-    }
-
-    /* chat bubbles */
-    & .wf-chat-bubble {
-      border-image: var(--sk-rect-1) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-      background: transparent !important;
-    }
-    & .wf-chat-bubble-sent .wf-chat-bubble { border-image-source: var(--sk-rect-2); }
-    & .wf-chat-bubble-received .wf-chat-bubble { border-image-source: var(--sk-rect-3); }
-
-    /* progress track */
-    & .wf-progress-track {
-      border-image: var(--sk-rect-4) 8 fill;
-      border-width: 1.5px;
-      border-style: solid;
-      border-radius: 0;
-      overflow: visible;
-    }
-
-    /* ── Sketch divider lines: pseudo-element background-image ──
-       More reliable than border-image for single-side borders. */
+    /* ── Sketch divider lines: <SketchLine/> overlay replaces the flat border ── */
     & .wf-card-footer,
     & .wf-modal-header,
     & .wf-modal-footer,
@@ -1181,88 +1125,30 @@
     & .wf-chat-footer {
       position: relative;
     }
-    /* border-top replacements */
-    & .wf-card-footer::before,
-    & .wf-modal-footer::before,
-    & .wf-chat-footer::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-image: var(--sk-line-h-1);
-      background-size: 100% 100%;
-      pointer-events: none;
+    & .wf-card-footer,
+    & .wf-modal-footer,
+    & .wf-chat-footer {
+      border-top: none;
     }
-    & .wf-card-footer { border-top: none; padding-top: 4px; }
-    & .wf-modal-footer::before { background-image: var(--sk-line-h-3); }
-    & .wf-modal-footer { border-top: none; }
-    & .wf-chat-footer::before { background-image: var(--sk-line-h-2); }
-    & .wf-chat-footer { border-top: none; }
-
-    /* border-bottom replacements */
-    & .wf-modal-header::after,
-    & .wf-list-header::after,
-    & .wf-chat-header::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-image: var(--sk-line-h-4);
-      background-size: 100% 100%;
-      pointer-events: none;
+    & .wf-modal-header,
+    & .wf-list-header,
+    & .wf-chat-header {
+      border-bottom: none;
     }
-    & .wf-modal-header { border-bottom: none; padding-bottom: 4px; }
-    & .wf-modal-header::after { background-image: var(--sk-line-h-2); }
-    & .wf-list-header { border-bottom: none; padding-bottom: 4px; }
-    & .wf-chat-header { border-bottom: none; padding-bottom: 4px; }
-    & .wf-chat-header::after { background-image: var(--sk-line-h-3); }
-
     & .wf-notification-item {
       position: relative;
       border-bottom: none;
     }
-    & .wf-notification-item::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-image: var(--sk-line-h-1);
-      background-size: 100% 100%;
-      pointer-events: none;
-    }
-    & .wf-notification-item:last-child::after { display: none; }
 
-    /* ── Sketch filled bars: background-image replacement ── */
-    & .wf-slider-track,
-    & .wf-slider-track-fill,
     & .wf-stepper-connector,
-    & .wf-connector-filled {
-      background: none;
-      background-image: var(--sk-line-h-4);
-      background-size: 100% 100%;
-      border-radius: 0;
-    }
+    & .wf-connector-filled,
     & .wf-timeline-line {
       background: none;
-      background-image: var(--sk-line-v-1);
-      background-size: 100% 100%;
-    }
-    & .wf-progress-fill {
-      background: none;
-      background-image: var(--sk-line-h-1);
-      background-size: 100% 100%;
-      border-radius: 0;
     }
 
     /* ── Chart axes ── */
-    & .wf-chart-axis-y { border-left-color: transparent; border-image: var(--sk-line-v-1) 0 0 0 1; }
-    & .wf-chart-axis-x { border-bottom-color: transparent; border-image: var(--sk-line-h-1) 0 0 1 0; }
+    & .wf-chart-axis-y { border-left-color: transparent; }
+    & .wf-chart-axis-x { border-bottom-color: transparent; }
   }
 
   /* ═══════════════════════════════════════════════════════════

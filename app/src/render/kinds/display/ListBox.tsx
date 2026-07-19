@@ -5,11 +5,13 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
+import { useSketchLine } from "../../sketch/SketchLine";
 
 export function ListBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
   const sketchBorder = useSketchBorder();
+  const headerLine = useSketchLine({ edge: "bottom" });
   const items = n.items || [];
 
   const box = (
@@ -25,7 +27,12 @@ export function ListBox(props: { node: WFNode & { _id?: string } }) {
       {sketchBorder}
       <Pin id={n._id} />
       <div className="wf-list-content flex flex-col w-full gap-2">
-        {n.label && <div className="wf-list-header pb-1.5 border-b border-[var(--wf-c-line)]">{n.label}</div>}
+        {n.label && (
+          <div className="wf-list-header pb-1.5 border-b border-[var(--wf-c-line)] relative">
+            {headerLine}
+            {n.label}
+          </div>
+        )}
         <ul className="wf-list-items list-none p-0 m-0 flex flex-col">
           {items.map((item, idx) => (
             <li key={idx} className="wf-list-item flex items-center gap-2 py-2 px-0 border-b border-[var(--wf-c-line)] last:border-b-0">
