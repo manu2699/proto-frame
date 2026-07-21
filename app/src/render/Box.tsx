@@ -45,9 +45,13 @@ import { StepperBox } from "./kinds/nav/StepperBox";
 import { PaginationBox } from "./kinds/nav/PaginationBox";
 import { BarChartBox } from "./kinds/charts/BarChartBox";
 import { LineChartBox } from "./kinds/charts/LineChartBox";
+import { AreaChartBox } from "./kinds/charts/AreaChartBox";
 import { DonutChartBox } from "./kinds/charts/DonutChartBox";
+import { PieChartBox } from "./kinds/charts/PieChartBox";
+import { GaugeChartBox } from "./kinds/charts/GaugeChartBox";
 import { KpiBox } from "./kinds/charts/KpiBox";
 import { TableBox } from "./kinds/display/TableBox";
+import { FlowGraphBox } from "./kinds/display/FlowGraphBox";
 import { ListBox } from "./kinds/display/ListBox";
 import { TimelineBox } from "./kinds/display/TimelineBox";
 import { NotificationListBox } from "./kinds/display/NotificationListBox";
@@ -63,7 +67,10 @@ const KIND_RENDERERS: Record<
 > = {
   "chart:bars": (props) => <BarChartBox node={props.node} />,
   "chart:donut": (props) => <DonutChartBox node={props.node} />,
+  "chart:pie": (props) => <PieChartBox node={props.node} />,
   "chart:line": (props) => <LineChartBox node={props.node} />,
+  "chart:area": (props) => <AreaChartBox node={props.node} />,
+  "chart:gauge": (props) => <GaugeChartBox node={props.node} />,
   button: (props) => <ButtonBox node={props.node} />,
   heading: (props) => <HeadingBox node={props.node} />,
   input: (props) => <InputBox node={props.node} />,
@@ -107,6 +114,10 @@ const KIND_RENDERERS: Record<
   timeline: (props) =>
     props.node.events && props.node.events.length > 0 ? (
       <TimelineBox node={props.node} />
+    ) : null,
+  flowgraph: (props) =>
+    props.node.graphNodes && props.node.graphNodes.length > 0 ? (
+      <FlowGraphBox node={props.node} />
     ) : null,
   progress: (props) => <ProgressBox node={props.node} />,
   badge: (props) => <BadgeBox node={props.node} />,

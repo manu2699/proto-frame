@@ -20,6 +20,7 @@ export function Table(props: { node: WFNode & { _id?: string } }) {
       onClick={(e) => handleClick(wf, n._id, n.goto, n.opens, e)}
     >
       <Pin id={n._id} />
+      {n.label && <span className="wf-table-label">{n.label}</span>}
       {n.headers && (
         <div
           className="grid border-t border-[var(--wf-c-line)] first:border-t-0"
@@ -31,6 +32,11 @@ export function Table(props: { node: WFNode & { _id?: string } }) {
               className="wf-th py-2 px-2.5 min-w-0 border-l border-[var(--wf-c-line)] first:border-l-0 whitespace-nowrap overflow-hidden text-ellipsis"
             >
               {h}
+              {n.sortable && (
+                <span className="wf-sort-indicator">
+                  {n.sortCol === i ? (n.sortDir === "asc" ? " ▲" : " ▼") : " ↕"}
+                </span>
+              )}
             </div>
           ))}
         </div>

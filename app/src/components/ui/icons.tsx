@@ -1,10 +1,13 @@
 // Animated inline icon set using motion/react.
 // Provides smooth, copy-paste ready micro-animations on hover.
 
-import type { SVGProps } from "react";
 import { motion } from "motion/react";
 
-type IconProps = SVGProps<SVGSVGElement> & { className?: string };
+// Every call site only ever passes className — several SVG presentation
+// attributes (values, onAnimationStart, ...) collide with motion's own props
+// of the same name but different shape, so there's no clean way to extend
+// SVGProps here. Keep the surface to what's actually used.
+type IconProps = { className?: string };
 
 export const X = (props: IconProps) => (
   <motion.svg

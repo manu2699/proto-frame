@@ -47,9 +47,17 @@
     "feature-spec"
   ],
   "license": "MIT",
+  "author": "Maneesh K",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manu2699/proto-frame.git"
+  },
+  "homepage": "https://github.com/manu2699/proto-frame#readme",
+  "bugs": {
+    "url": "https://github.com/manu2699/proto-frame/issues"
+  },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "motion": "^12.40.0"
+    "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "devDependencies": {
     "@radix-ui/react-dialog": "^1.1.6",
@@ -64,6 +72,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "motion": "^12.40.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "roughjs": "^4.6.6",

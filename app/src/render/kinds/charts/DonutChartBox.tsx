@@ -2,7 +2,7 @@ import type { WFNode } from "../../../types";
 import { Pin } from "../../Pin";
 import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
-import { modClasses } from "../../util";
+import { modClasses, layoutClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { useSketchBorder } from "../../SketchBorder";
 
@@ -24,7 +24,7 @@ export function DonutChartBox(props: { node: WFNode & { _id?: string } }) {
 
   const box = (
     <div
-      className={"wf-box wf-donutchart-box " + modClasses(n)}
+      className={"wf-box wf-donutchart-box " + layoutClasses(n) + " " + modClasses(n)}
       data-wf-id={n._id}
       data-wf-commented={wf.pinOf(n._id) > 0 ? "1" : undefined}
       data-kind={n.kind}
@@ -38,7 +38,7 @@ export function DonutChartBox(props: { node: WFNode & { _id?: string } }) {
         {n.label && <span className="wf-chart-label">{n.label}</span>}
         <div className="wf-chart-body wf-donutchart-body flex items-center justify-center">
           <div className="wf-donut-chart-wrapper flex flex-row items-center justify-center gap-6 w-full">
-            <div className="wf-donut-svg-container relative w-[90px] h-[90px] shrink-0">
+            <div className="wf-donut-svg-container relative w-[104px] h-[104px] shrink-0">
               <svg viewBox="0 0 40 40" className="wf-donut-svg w-full h-full -rotate-90">
                 <circle
                   cx="20"
@@ -49,10 +49,13 @@ export function DonutChartBox(props: { node: WFNode & { _id?: string } }) {
                   strokeWidth="3.5"
                 />
                 {data.map((d, i) => {
-                  const pct = (d.value / sum) * 100;
+                  // Small visual gap between wedges (rounded caps eat into the
+                  // stroke length, so it's carved out of the segment, not added).
+                  const gap = data.length > 1 ? 1.2 : 0;
+                  const pct = Math.max((d.value / sum) * 100 - gap, 0);
                   const dashOffset = 100 - accumulated;
-                  accumulated += pct;
- 
+                  accumulated += (d.value / sum) * 100;
+
                   return (
                     <circle
                       key={i}
@@ -62,11 +65,14 @@ export function DonutChartBox(props: { node: WFNode & { _id?: string } }) {
                       fill="transparent"
                       stroke="currentColor"
                       strokeWidth="4"
+                      strokeLinecap="round"
                       strokeDasharray={`${pct} ${100 - pct}`}
                       strokeDashoffset={dashOffset}
                       className="wf-donut-segment"
-                      style={{ opacity: 1 - i * 0.25 } as React.CSSProperties}
-                    />
+                      style={{ opacity: 1 - i * 0.22 } as React.CSSProperties}
+                    >
+                      <title>{`${d.label}: ${d.value}`}</title>
+                    </circle>
                   );
                 })}
               </svg>
@@ -79,11 +85,9 @@ export function DonutChartBox(props: { node: WFNode & { _id?: string } }) {
               {data.map((d, i) => (
                 <div key={i} className="wf-donut-legend-item flex items-center gap-2">
                   <span
-                    className="wf-donut-legend-indicator"
-                    style={{ opacity: 1 - i * 0.25 }}
-                  >
-                    ■
-                  </span>
+                    className="wf-donut-legend-swatch"
+                    style={{ opacity: 1 - i * 0.22 }}
+                  />
                   <span className="wf-donut-legend-text">
                     {d.label} ({d.value})
                   </span>

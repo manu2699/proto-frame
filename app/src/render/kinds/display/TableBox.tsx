@@ -114,6 +114,7 @@ export function TableBox(props: { node: WFNode & { _id?: string } }) {
     >
       {sketchBorder}
       <Pin id={n._id} />
+      {n.label && <span className="wf-table-label">{n.label}</span>}
       <div ref={tableContentRef} className="wf-table-content w-full flex flex-col relative">
         {isSketch && <SketchTableLines containerRef={tableContentRef} />}
         <div
@@ -127,6 +128,11 @@ export function TableBox(props: { node: WFNode & { _id?: string } }) {
               className={"wf-th py-2 px-2.5 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis " + cellBorder}
             >
               {h}
+              {n.sortable && (
+                <span className="wf-sort-indicator">
+                  {n.sortCol === i ? (n.sortDir === "asc" ? " ▲" : " ▼") : " ↕"}
+                </span>
+              )}
             </div>
           ))}
           {hasActions && <div className={"wf-th wf-table-actions-col justify-end flex items-center text-right py-2 px-2.5 min-w-0 " + cellBorder}>Actions</div>}

@@ -5,6 +5,7 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { SketchBorder } from "../../SketchBorder";
+import { LINE_BOWING, LINE_ROUGHNESS } from "../../sketch/roughDraw";
 
 export function ToggleBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
@@ -26,7 +27,7 @@ export function ToggleBox(props: { node: WFNode & { _id?: string } }) {
       <Pin id={n._id} />
       <div className="wf-toggle-content flex items-center gap-2">
         <div className={"wf-toggle-switch w-9 h-5 p-0.5 relative" + (isChecked ? " wf-toggle-checked" : "")}>
-          {isSketch && <SketchBorder />}
+          {isSketch && <SketchBorder roughness={LINE_ROUGHNESS} bowing={LINE_BOWING} />}
           <div className="wf-toggle-knob w-3.5 h-3.5 rounded-full" />
         </div>
         <span className="wf-toggle-label">{n.toggleLabel || n.label}</span>

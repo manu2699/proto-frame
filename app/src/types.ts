@@ -5,8 +5,11 @@ export type Kind =
   | "kpi"
   | "stat"
   | "chart:donut"
+  | "chart:pie"
   | "chart:line"
+  | "chart:area"
   | "chart:bars"
+  | "chart:gauge"
   | "card"
   | "table"
   | "list"
@@ -37,7 +40,8 @@ export type Kind =
   | "alert"
   | "modal"
   | "notification-list"
-  | "chat-window";
+  | "chat-window"
+  | "flowgraph";
 
 export type Mod =
   | "tall"
@@ -86,6 +90,7 @@ export interface ChartDataPoint {
 
 export interface WFNode {
   type?: NodeType;      // B: omit → inferred as "box" by normalize
+  _id?: string;         // stamped at render time by stampModel — not authored
   label?: string;
   // compact shorthands (C, A, G) — expanded by normalize before render
   row?: WFNode[];       // C: shorthand for {type:"row", children:[...]}
@@ -101,6 +106,9 @@ export interface WFNode {
   // table
   headers?: string[];
   rows?: string[][];
+  sortable?: boolean;           // renders a ↕ affordance after every header label
+  sortCol?: number;             // 0-based; renders ▲/▼ on that header instead of ↕
+  sortDir?: "asc" | "desc";
 
   // nav (IA)
   side?: "left" | "top";
@@ -188,6 +196,12 @@ export interface WFNode {
   notifications?: { text: string; meta?: string; unread?: boolean }[];
   messages?: { from: string; text: string; sent?: boolean }[];
   chartData?: ChartDataPoint[];
+
+  // flowgraph enrichment (named graphNodes, not nodes — avoids collision with
+  // screen/state `nodes` and normalize recursion)
+  graphNodes?: { id: string; label: string; goto?: string; opens?: string }[];
+  graphEdges?: { from: string; to: string; label?: string }[];
+  direction?: "TB" | "LR";
 }
 
 export interface WFState {

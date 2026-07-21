@@ -78,6 +78,18 @@ const glyphs: Partial<Record<Kind, (sizeClass?: string) => ReactNode>> = {
       <path d="M14 29 L26 20 L34 26 L42 18 L50 25" strokeOpacity="0.5" />
     </>, sz),
   table: () => null, // tables render their own grid, not a glyph
+  flowgraph: (sz) =>
+    S(<>
+      <rect x="6" y="16" width="14" height="10" rx="1.5" strokeOpacity="0.5" />
+      <rect x="27" y="4" width="14" height="10" rx="1.5" strokeOpacity="0.5" />
+      <rect x="27" y="26" width="14" height="10" rx="1.5" strokeOpacity="0.5" />
+      <path d="M20 19 L27 11" strokeOpacity="0.5" />
+      <path d="M25.5 12.5 l1.5 -1.5 l0.3 2" strokeOpacity="0.5" />
+      <path d="M20 23 L27 29" strokeOpacity="0.5" />
+      <path d="M25.5 27 l1.5 2 l-2 -0.3" strokeOpacity="0.5" />
+      <path d="M41 9 L52 20" strokeOpacity="0.5" />
+      <path d="M49 19.5 l3 0.5 l-1.5 2" strokeOpacity="0.5" />
+    </>, sz),
   search: (sz) =>
     S(<>
       <circle cx="28" cy="17" r="6" strokeOpacity="0.5" />

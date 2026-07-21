@@ -5,7 +5,7 @@ Thanks for your interest in contributing. This is a focused tool — keep PRs ti
 ## Quick start
 
 ```bash
-git clone https://github.com/your-org/proto-frames
+git clone https://github.com/manu2699/proto-frame
 cd proto-frames
 npm install
 ```

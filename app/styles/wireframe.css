@@ -196,6 +196,10 @@
     font-style: italic;
   }
 
+  .wf-sort-indicator {
+    opacity: 0.45;
+  }
+
   /* ═══════════════════════════════════════════════════════════
      SHARED TYPOGRAPHY GROUPS
      font-family is inherited from .wf-app; only exceptions listed
@@ -1044,8 +1048,8 @@
     &.wf-modal-preview-card,
     & .wf-dialog-content,
     & .wf-modal-preview-card {
-      --wf-font: 'Patrick Hand', cursive;
-      --wf-c-sans: 'Patrick Hand', cursive;
+      --wf-font: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      --wf-c-sans: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
       font-family: var(--wf-font) !important;
       border-color: transparent !important;
       border-radius: 0px !important;
@@ -1059,8 +1063,8 @@
     }
 
     & .wf-box {
-      --wf-font: 'Patrick Hand', cursive;
-      --wf-c-sans: 'Patrick Hand', cursive;
+      --wf-font: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      --wf-c-sans: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
       /* background: #fefefe; */
       letter-spacing: 0.2ch;
     }
@@ -1154,12 +1158,30 @@
   /* ═══════════════════════════════════════════════════════════
      CHARTS — SVG fill/stroke cannot be Tailwind; colours only
      ═══════════════════════════════════════════════════════════ */
+
+  /* Every chart box shares this padding (none of them set it via Tailwind
+     utility classes individually) — content sat flush against the border,
+     most visible in sketch mode where the hand-drawn wobble eats into it. */
+  .wf-box[data-kind^="chart:"] {
+    padding: 0.85em;
+  }
+
   .wf-chart-label {
     font-size: 0.88em;
     font-weight: 600;
     color: var(--wf-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+  }
+
+  .wf-table-label {
+    display: block;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--wf-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.6em 0.6em 0;
   }
 
   .wf-chart-axis-y {
@@ -1170,29 +1192,64 @@
     border-bottom: 1px solid var(--wf-line);
   }
 
-  .wf-chart-bar-main {
-    background: var(--wf-ink);
-    transition: height 0.3s ease;
+  .wf-chart-grid-line {
+    stroke-dasharray: 2, 3;
+    opacity: 0.7;
   }
 
-  .wf-chart-bar-target {
-    background: transparent;
-    border: 1px dashed var(--wf-line);
-    transition: height 0.3s ease;
+  .wf-chart-area-fill {
+    opacity: 0.06;
   }
 
-  .wf-chart-bar-label {
-    font-size: 0.8em;
-    color: var(--wf-muted);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    max-width: 100%;
+  .wf-chart-area-fill-solid {
+    opacity: 0.16;
+  }
+
+  .wf-pie-segment {
+    color: var(--wf-ink);
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  /* font-size/weight set as SVG attributes (viewBox-unit space), not here —
+     CSS would override the presentation attribute and re-introduce the
+     em-vs-viewBox-unit mismatch every other chart's <text> already avoids. */
+  .wf-gauge-subtitle-text {
+    letter-spacing: 0.05em;
+  }
+
+  .wf-gauge-value-arc {
+    transition: stroke-dasharray 0.3s ease;
+  }
+
+  .wf-chart-bar-group {
+    & .wf-chart-bar-main {
+      transition: opacity 0.15s ease;
+    }
+    &:hover .wf-chart-bar-main {
+      opacity: 0.75;
+    }
   }
 
   .wf-donut-segment {
-    transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
+    transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease, opacity 0.15s ease;
     color: var(--wf-ink);
+
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  .wf-donut-legend-swatch {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--wf-ink);
+    flex-shrink: 0;
   }
 
   .wf-donut-center-value {

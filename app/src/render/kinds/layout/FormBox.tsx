@@ -5,6 +5,7 @@ import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
 import { SketchBorder, useSketchBorder } from "../../SketchBorder";
+import { LINE_BOWING, LINE_ROUGHNESS } from "../../sketch/roughDraw";
 
 export function FormBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
@@ -61,8 +62,8 @@ export function FormBox(props: { node: WFNode & { _id?: string } }) {
                 {fieldType === "toggle" && (
                   <div className="wf-field-toggle-container flex items-center h-8">
                     <div className={"wf-toggle-switch w-9 h-5 relative p-0.5" + (f.checked ? " wf-toggle-checked" : "")}>
-                      {isSketch && <SketchBorder />}
-                      <div className="wf-toggle-knob w-3.5 h-3.5" />
+                      {isSketch && <SketchBorder roughness={LINE_ROUGHNESS} bowing={LINE_BOWING} />}
+                      <div className="wf-toggle-knob w-3.5 h-3.5 rounded-full" />
                     </div>
                   </div>
                 )}
