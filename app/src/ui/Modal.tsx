@@ -4,6 +4,7 @@
 import type { WFModal } from "../types";
 import { Node, WFProvider, type WFActions } from "../render/Node";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { SketchBorder } from "../render/SketchBorder";
 
 export function Modal(props: {
   modal?: WFModal;
@@ -11,10 +12,12 @@ export function Modal(props: {
   actions: WFActions;
 }) {
   const md = props.modal;
+  const isSketch = props.actions.drawMode() === "sketch";
   return (
     <Dialog open={!!md} onOpenChange={(o) => !o && props.onClose()}>
       {md && (
-        <DialogContent aria-label={md.name}>
+        <DialogContent aria-label={md.name} className="relative">
+          {isSketch && <SketchBorder />}
           <DialogHeader>
             <DialogTitle>{md.name}</DialogTitle>
           </DialogHeader>

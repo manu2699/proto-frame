@@ -13,7 +13,7 @@
   things really worth having to start are Intent and Persona; screens and API can be
   proposed by a consumer (e.g. the wireframe skill proposes screens if that section is blank).
 
-  Consumed by: the wireframe-preview skill, and intended to feed other skills (QA state-mapping, docs, frontend<->backend planning) over time.
+  Consumed by: the proto-frames skill, and intended to feed other skills (QA state-mapping, docs, frontend<->backend planning) over time.
 -->
 
 ## Intent

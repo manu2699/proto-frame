@@ -3,7 +3,7 @@
 # Machine-readable design tokens. Fill what you know; omit what you don't. Hex is the recommended color format.
 version: alpha
 name: <project> design system
-description: Component vocabulary and visual rules for this project. Read by the wireframe-preview skill to ground every data-ds mapping in real component names.
+description: Component vocabulary and visual rules for this project. Read by the proto-frames skill to ground every data-ds mapping in real component names.
 colors:
   primary: "#000000"
   neutral: "#71717a"
@@ -29,7 +29,7 @@ components:
   DESIGN.md — the design-system source of truth, per Google Labs' open DESIGN.md format
   (https://github.com/google-labs-code/design.md). Lives at the PROJECT ROOT.
 
-  This is a REFERENCE SCAFFOLD only. The wireframe-preview skill never auto-creates a
+  This is a REFERENCE SCAFFOLD only. The proto-frames skill never auto-creates a
   DESIGN.md — it only reads one you've authored deliberately. Author this by hand (or with
   dedicated DESIGN.md tooling) when you want a real, standards-compliant vocabulary; if it's
   absent, the wireframe just falls back to generic HTML primitives with amber-marked guesses.

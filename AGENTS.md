@@ -24,7 +24,7 @@ Pure Node.js installer. Reads `SKILL.md` and copies it into agent rule directori
 No files are written to the user's project. Everything is in-memory or served from `assets/`.
 
 ### 3. React renderer (`app/src/`)
-Built with Vite + React + shadcn/ui + Tailwind 4. Compiled into `assets/dist/wireframe-app.js` (single bundle) and `assets/wireframe.css`. These are committed build artifacts — the MCP server serves them directly.
+Built with Vite + React + shadcn/ui + Tailwind 4. Compiled into `assets/dist/wireframe-app.js` (single bundle) and `assets/wireframe.css`. These are generated build artifacts — the MCP server serves them directly.
 
 Key structure:
 - `app/src/types.ts` — canonical `WFModel` / `WFNode` / `WFScreen` / `WFState` / `WFModal` type definitions
@@ -43,5 +43,5 @@ Agent → `wireframe_open(feature, model)` → `store.js` (in-memory) → HTTP s
 
 - Agents author only the `WFModel` JSON — they never edit `app/src/`, `wireframe.css`, or `wireframe-app.js`
 - `npm run build` must be run before publishing; `prepublishOnly` enforces this
-- The `assets/` directory contains committed build output that the MCP server reads at runtime
+- The `assets/` directory contains generated build output that the MCP server reads at runtime
 - `SKILL.md` is the skill instruction file shipped to agents; it is the source of truth for the JSON schema the skill produces

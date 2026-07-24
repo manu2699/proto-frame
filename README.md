@@ -1,173 +1,145 @@
-# Wireframe-preview skill
+# proto-frames
 
-Generate fast, low-fidelity HTML wireframes to preview the UI/UX implications of a feature or change — directly inside your AI agent.
+> Generate fast, monochrome mid-fidelity wireframes from inside your AI agent.
 
-Works from a `feature-spec.md`, pasted endpoint definitions, or a plain one-sentence description. You author **only a small JSON model** — screens, navigation, boxes, and flow — and a prebuilt app renders it into screen tabs, state tabs, enumerated nav, monochrome type glyphs, a clickable prototype, and hover annotations that map each box back to the backend change and your design system. Monochrome mid-fidelity: shows layout, information architecture, and flow, never colors, real copy, or production styling.
+You describe a feature (or point at a spec file). The agent proposes screens, you approve, and a prebuilt React app opens in your browser showing tabs, states, nav, kind glyphs, and a clickable prototype. Feedback flows back to the agent over MCP or clipboard.
 
-Pairs with [feature-spec](https://npmjs.com/package/feature-spec): that skill produces the spec, this one consumes it.
+Pairs with [feature-spec](https://npmjs.com/package/feature-spec): that skill produces a structured `docs/specs/<feature>.md`, this one consumes it.
 
 ---
 
 ## Install
 
-No global install needed — works with `npx`, `pnpm dlx`, or `bunx`:
-
 ```bash
-npx wireframe-preview install
-pnpm dlx wireframe-preview install
-bunx wireframe-preview install
+npx proto-frames install          # auto-detect agents in your project
 ```
 
-This auto-detects which agents are present in your project and installs accordingly. To target a specific agent (swap `npx` for `pnpm dlx` or `bunx` as preferred):
+Or target a specific agent:
 
 ```bash
-npx wireframe-preview install claude          # Claude Code (global ~/.claude/skills/)
-npx wireframe-preview install claude-project  # Claude Code (project .claude/skills/)
-npx wireframe-preview install cursor          # Cursor (.cursor/rules/)
-npx wireframe-preview install kilocode        # Kilocode (.kilocode/rules/)
-npx wireframe-preview install windsurf        # Windsurf (.windsurf/rules/)
-npx wireframe-preview install agents          # Generic .agents/skills folder
-npx wireframe-preview install codex           # Codex / OpenAI (.agents/skills)
-npx wireframe-preview install antigravity     # Antigravity (.agents/skills)
-npx wireframe-preview install copilot         # GitHub Copilot (.agents/skills)
-npx wireframe-preview install amp-code        # Amp Code (.amp/rules/)
+npx proto-frames install claude          # Claude Code — global (~/.claude/skills/)
+npx proto-frames install claude-project  # Claude Code — project (.claude/skills/)
+npx proto-frames install cursor          # Cursor (.cursor/rules/)
+npx proto-frames install windsurf        # Windsurf (.windsurf/rules/)
+npx proto-frames install kilocode        # Kilocode (.kilocode/rules/)
+npx proto-frames install copilot         # GitHub Copilot (.github/copilot-instructions.md)
+npx proto-frames install amp-code        # Amp Code (~/.config/amp/settings.json)
+npx proto-frames install codex           # Codex (~/.codex/AGENTS.md)
+npx proto-frames install antigravity     # Antigravity (.agents/plugins/)
+npx proto-frames install agents          # Generic (.agents/skills/)
 ```
-
-### Uninstall
 
 ```bash
-npx wireframe-preview uninstall            # auto-detect and remove
-npx wireframe-preview uninstall cursor     # remove from one platform
+npx proto-frames uninstall            # auto-detect and remove
+npx proto-frames uninstall cursor     # remove from one platform
+npx proto-frames list                 # list all supported platforms
 ```
 
-### List supported platforms
+> `pnpm dlx` and `bunx` work everywhere `npx` does.
+
+---
+
+## MCP server (optional, recommended for local harnesses)
+
+The skill works without MCP using clipboard copy-paste. With MCP, the browser streams feedback directly back to the agent.
+
+Register the server in your harness after installing the skill:
 
 ```bash
-npx wireframe-preview list
+npx proto-frames mcp claude-project  # Claude Code → .mcp.json
+npx proto-frames mcp cursor          # Cursor → .cursor/mcp.json
+npx proto-frames mcp windsurf        # Windsurf → ~/.codeium/windsurf/mcp_config.json
+npx proto-frames mcp copilot         # GitHub Copilot (VS Code) → .vscode/mcp.json
+npx proto-frames mcp kilocode        # Kilocode → .kilocode/mcp.json
+npx proto-frames mcp amp-code        # Amp Code → ~/.config/amp/settings.json
+npx proto-frames mcp antigravity     # Antigravity → ~/.gemini/config/mcp_config.json
 ```
+
+```bash
+npx proto-frames mcp                 # print config snippet for every harness
+npx proto-frames mcp --print cursor  # print only, never edit
+npx proto-frames mcp --remove cursor # unregister
+```
+
+For harnesses with non-JSON configs (Codex TOML, Cline VS Code storage), the command prints the snippet for manual setup instead of editing.
+
+### MCP tools
+
+| Tool | Description |
+|------|-------------|
+| `wireframe_open` | Accept model JSON, serve on localhost, open browser |
+| `wireframe_update` | Swap in-memory model, auto-reload browser |
+| `wireframe_wait_feedback` | Block until next feedback or approval arrives |
+| `wireframe_poll_feedback` | Non-blocking drain of pending feedback |
+| `wireframe_status` | Returns `{ approved, openComments, url }` |
+
+> Requires a local execution environment — pure cloud chat surfaces have no localhost and use the clipboard flow instead.
 
 ---
 
 ## Usage
 
-Once installed, invoke the skill inside your agent. Point it at whatever you have:
+Once the skill is installed, invoke it inside your agent:
 
 ```
-/wireframe-preview
+/proto-frames
 ```
 
-- **From a feature spec** — `wireframe the refund flow from docs/specs/refund-flow.md`
-- **From a description** — `show me the screens for letting users invite teammates`
-- **From pasted endpoints** — paste your route definitions and say `wireframe this`
-- **From nothing** — just describe what the feature does; the skill proposes the screens and you prune
+Point it at whatever you have:
 
-You author one small JSON model (schema in [SKILL.md](SKILL.md)) and pass it to the MCP server via `wireframe_open`. The server holds the model in memory, composes HTML dynamically, and serves it on localhost — **no files are written to your project**. The prebuilt React app (`wireframe-app.js`) and frozen stylesheet (`wireframe.css`) are served directly from the package directory.
+| Input | Example |
+|-------|---------|
+| Feature spec file | `wireframe the refund flow from docs/specs/refund-flow.md` |
+| Plain description | `show me the screens for letting users invite teammates` |
+| Pasted endpoints | paste route definitions + say `wireframe this` |
+| Nothing | just describe the feature — skill proposes screens, you prune |
+
+The skill proposes the screen list as text first (cheap to edit), then draws only after you approve.
 
 ---
 
-## What you get
+## What renders
 
-You author a JSON model — a `screens → states → nodes` tree — and the prebuilt app turns it into:
+You author a `screens → states → nodes` JSON model (schema in [SKILL.md](SKILL.md)). The prebuilt app turns it into:
 
-**Screen tabs** — one tab per agreed screen (Members page, Accept screen).
+- **Screen tabs** — one per screen
+- **State tabs** — per screen, only for states that matter (`default`, `empty`, `error`, `permission-denied`)
+- **Enumerated nav** — actual menu items grouped by IA, not one anonymous "Sidebar" block
+- **Kind glyphs** — `kpi`, `chart:donut`, `chart:line`, `chart:bars`, `card`, `table`, `form`, `button`, … render as recognizable grey shapes, never real data
+- **Clickable prototype** — `goto:"<screenId>"` switches screen, `opens:"<modalId>"` opens a modal overlay
+- **Hover annotations** — `backend` (column / endpoint / permission touched) and `ds` (design-system component, or `guess:` if no vocabulary)
+- **Feedback layer** — click a box, type a note, hit **Send to agent** (MCP) or **Copy feedback block** (clipboard)
 
-**State tabs** — per screen, only for states that matter (default, empty, error, permission-denied).
-
-**Enumerated nav** — a `nav` node lists the actual menu items grouped as IA (Workflow / Compliance), not one anonymous "Sidebar" block.
-
-**Monochrome `kind` glyphs** — a box's `kind` (`kpi`, `chart:donut`, `chart:line`, `chart:bars`, `card`, `table`, `list`, `form`, `button`, …) renders a recognizable grey shape, never a real chart or real data. Still strictly monochrome — a shape hint, not a component.
-
-**Clickable prototype** — flow fields make the preview walkable: `goto:"<screenId>"` switches screen, `opens:"<modalId>"` opens a modal overlay, `action:"submit"|"save"|…` labels intent. First-class `modals[]` are opened via `opens`.
-
-**Annotated boxes** — every box that the backend change touches carries two annotations shown on hover:
-- `backend` — the concrete backend element (column, endpoint, permission)
-- `ds` — the design-system component mapped from your `DESIGN.md`, or a clearly marked `guess:` if no vocabulary exists
-
-**Feedback layer** — click any box in the browser, type a note, hit "Copy feedback block," and paste it back to the agent for precise, element-anchored iteration.
-
----
-
-## Live editing via MCP (optional)
-
-The copy-paste feedback loop works in any harness, including pure chat. If you're on a **local** harness (Claude Code, Cursor, Cline, Windsurf, Codex), you can drop the paste step entirely with the bundled **MCP server**.
-
-The agent passes the wireframe model to `wireframe_open`, which holds it in memory and serves it on localhost. The browser streams **"Send to agent"** / **"✓ Approve"** blocks back to the agent over HTTP POST, with live reload signals streamed back via Server-Sent Events (SSE) — no clipboard paste needed. Updates go through `wireframe_update`, which swaps the in-memory model and auto-reloads the browser.
-
-### Setup (two commands)
-
-The skill and the MCP server install separately. After installing the skill (above), register the server in your harness:
-
-```bash
-npx wireframe-preview mcp cursor     # Cursor   → .cursor/mcp.json
-npx wireframe-preview mcp windsurf   # Windsurf → ~/.codeium/windsurf/mcp_config.json
-npx wireframe-preview mcp vscode     # VS Code  → .vscode/mcp.json
-npx wireframe-preview mcp claude-project   # Claude Code → .mcp.json
-```
-
-This merges a `wireframe-preview` entry into that harness's MCP config (idempotent, backs up the original, never touches your other servers). If the config has comments it won't risk clobbering it — it prints the snippet to paste instead.
-
-For harnesses without a stable config path (Codex's `config.toml`, Cline's VS Code storage), it prints the exact path + snippet:
-
-```bash
-npx wireframe-preview mcp codex            # prints the TOML block
-npx wireframe-preview mcp                  # prints config for every harness
-npx wireframe-preview mcp --print cursor   # print, never edit
-npx wireframe-preview mcp --remove cursor  # unregister
-```
-
-The launch command is the same everywhere — `npx -y wireframe-mcp`, no global install. Once registered, the skill auto-detects the `wireframe_*` tools and uses them instead of asking you to paste. Tools exposed:
-
-- `wireframe_open` — accept a model JSON, serve it on localhost, open the browser
-- `wireframe_update` — swap the in-memory model and auto-reload the browser
-- `wireframe_wait_feedback` — block until the next feedback/approval block arrives
-- `wireframe_poll_feedback` — non-blocking drain of pending blocks
-- `wireframe_status` — `{ approved, openComments, url }`
-
-Requires a local execution environment — a pure cloud chat surface has no localhost and keeps the clipboard flow.
-
----
-
-## Design principles
-
-**Low fidelity is the point.** No colors, no real copy, no working components. A chart is a box labeled "Chart". The constraint forces focus on layout and flow, not aesthetics.
-
-**Never block on missing input.** The skill works from a one-sentence description. It proposes screens; you prune. You don't need a spec, a backend, or a design system to start.
-
-**Annotate what changed, leave the rest plain.** Only boxes that are new or modified by the backend change carry annotations. Nav, sidebar, and unchanged sections stay unmarked so the signal stays visible.
-
-**Confirm before drawing.** The skill proposes the screen list as text first — cheap to adjust — then draws after you approve. This avoids regenerating HTML for a screen breakdown you didn't want.
+Strictly monochrome — layout, IA, and flow only. No colors, real copy, or production styling.
 
 ---
 
 ## Pair with feature-spec
 
-The `feature-spec` skill reads your repo (git diff, routes, schema) and produces a structured `docs/specs/<feature>.md`. `wireframe-preview` reads that file as its input contract. The two skills are designed to chain:
-
 ```bash
-# 1. generate the spec
-npx feature-spec install
-
-# 2. generate the wireframe from it
-npx wireframe-preview install
+npx feature-spec install        # install the spec skill
+npx proto-frames install   # install this skill
 ```
 
-Then inside your agent:
+Then in your agent:
+
 ```
-/feature-spec      → writes docs/specs/refund-flow.md
-/wireframe-preview → reads it, proposes screens, opens wireframe via MCP server
+/feature-spec       → writes docs/specs/refund-flow.md
+/proto-frames  → reads it, proposes screens, opens wireframe
 ```
 
 ---
 
-## Build / development
-
-The renderer is a React app (shadcn/ui + Tailwind chrome), built with Vite (`@vitejs/plugin-react`). Source lives in `app/src/`; the build compiles the Tailwind stylesheet and emits a single self-contained bundle:
+## Development
 
 ```bash
-npm run build   # tailwindcss → assets/wireframe.css, vite build → assets/dist/wireframe-app.js (~90KB gz)
+npm install
+npm run dev    # Vite dev server for the React renderer (app/src/)
+npm run build  # Tailwind → assets/wireframe.css, Vite → assets/dist/wireframe-app.js
+npm test       # node test/smoke.mjs && node test/cli-mcp.mjs
 ```
 
-The MCP server serves the bundle and stylesheet directly from `assets/` — no files are copied into the user's project. Agents never edit `app/src/`, `wireframe.css`, or `wireframe-app.js` — they only author the JSON model and pass it to the MCP tools.
+Agents never edit `app/src/`, `wireframe.css`, or `wireframe-app.js` -- only the JSON model passed to the MCP tools. See [CLAUDE.md](CLAUDE.md) for architecture details.
 
 ---
 

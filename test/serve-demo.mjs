@@ -34,6 +34,22 @@ const DEMO_MODEL = {
       ]}],
     },
     {
+      id: "s_filters", name: "Filters",
+      states: [{ id: "default", name: "Default", nodes: [
+        { type: "col", children: [
+          { type: "box", kind: "select", label: "Region: All" },
+          { type: "box", kind: "select", label: "Status: Active" },
+          { type: "box", kind: "select", label: "Period: Last 30 days" },
+        ]},
+      ]}],
+    },
+    {
+      id: "s_reports", name: "Reports",
+      states: [{ id: "default", name: "Default", nodes: [
+        { type: "box", kind: "table", label: "Monthly Report", headers: ["Month", "Revenue", "Users"], rows: [["Jan", "12k", "800"], ["Feb", "15k", "950"]] },
+      ]}],
+    },
+    {
       id: "s_settings", name: "Settings",
       states: [{ id: "default", name: "Default", nodes: [
         { type: "box", kind: "form", label: "Preferences", backend: "PUT /settings" },

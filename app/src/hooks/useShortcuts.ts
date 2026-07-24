@@ -9,14 +9,15 @@ export interface ShortcutHandlers {
   setComment: () => void;
   setPrototype: () => void;
   toggleTheme: () => void;
+  toggleSketch: () => void;
 }
 
 // Single source of truth for the bindings, reused by the on-screen cheat sheet.
 export const SHORTCUTS: { keys: string; label: string }[] = [
   { keys: "C", label: "Comment mode" },
   { keys: "P", label: "Prototype" },
+  { keys: "S", label: "Sketch mode" },
   { keys: "\\", label: "Toggle panel" },
-  // { keys: "D", label: "Dark mode" },
 ];
 
 function typingTarget(el: EventTarget | null): boolean {
@@ -41,6 +42,7 @@ export function useShortcuts(h: ShortcutHandlers) {
       switch (e.key.toLowerCase()) {
         case "c": h.setComment(); break;
         case "p": h.setPrototype(); break;
+        case "s": h.toggleSketch(); break;
         case "\\": h.togglePanel(); break;
         case "d": h.toggleTheme(); break;
         default: return;
@@ -49,5 +51,5 @@ export function useShortcuts(h: ShortcutHandlers) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [h.togglePanel, h.setComment, h.setPrototype, h.toggleTheme]);
+  }, [h.togglePanel, h.setComment, h.setPrototype, h.toggleTheme, h.toggleSketch]);
 }

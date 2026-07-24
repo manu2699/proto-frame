@@ -13,3 +13,7 @@ npm-debug.log*
 .amp/
 .claude/
 .npmrc
+
+# Build outputs
+assets/dist/
+assets/wireframe.css

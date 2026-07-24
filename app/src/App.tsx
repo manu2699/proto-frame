@@ -44,7 +44,7 @@ export function App(props: {
   const { model, meta, storage, transport } = props;
   const metaOf = (id: string) => meta.get(id);
 
-  const { nav, gotoScreen, setState, openModal, closeModal, setMode } = useNav(model);
+  const { nav, gotoScreen, setState, openModal, closeModal, setMode, setDrawMode } = useNav(model);
   const { comments, order, upsert, remove } = useComments(storage);
   const { theme, toggle: toggleTheme } = useTheme();
 
@@ -77,7 +77,15 @@ export function App(props: {
   const togglePanel = useCallback(() => setReviewCollapsed((c) => !c), []);
   const setComment = useCallback(() => setMode("comment"), [setMode]);
   const setPrototype = useCallback(() => setMode("prototype"), [setMode]);
-  useShortcuts({ togglePanel, setComment, setPrototype, toggleTheme });
+  const toggleSketch = useCallback(
+    () => setDrawMode(nav.drawMode === "sketch" ? "clean" : "sketch"),
+    [setDrawMode, nav.drawMode],
+  );
+  useShortcuts({ togglePanel, setComment, setPrototype, toggleTheme, toggleSketch });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-drawmode", nav.drawMode);
+  }, [nav.drawMode]);
 
   const connected = useSyncExternalStore(transport.subscribe, transport.isConnected);
 
@@ -133,6 +141,7 @@ export function App(props: {
 
   const actions: WFActions = {
     mode: () => nav.mode,
+    drawMode: () => nav.drawMode,
     comment: review.openComment,
     goto: gotoScreen,
     openModal,
@@ -141,13 +150,16 @@ export function App(props: {
 
   return (
     <TooltipProvider delayDuration={150}>
-      <div className="wf-app flex h-screen flex-col" data-mode={nav.mode}>
+      <div className="wf-app flex h-screen flex-col" data-mode={nav.mode} data-drawmode={nav.drawMode}>
         <Header
           feature={model.feature} screens={model.screens} modals={model.modals} screenId={nav.screenId}
           badgeCount={badgeCount} onGoto={gotoScreen}
-          mode={nav.mode} onMode={setMode}
           theme={theme} onTheme={toggleTheme}
           flows={model.flows} showFlow={showFlow} onToggleFlow={() => setShowFlow((v) => !v)}
+          reviewCollapsed={reviewCollapsed} onToggleCollapse={togglePanel}
+          mode={nav.mode} onMode={setMode}
+          drawMode={nav.drawMode} onDrawMode={setDrawMode}
+          model={model}
         />
         {showFlow && model.flows && model.flows.length > 0 && (
           <FlowMap flows={model.flows} onGoto={gotoScreen} />
@@ -158,10 +170,10 @@ export function App(props: {
             ? <ModalPreview modal={activeModalPreview} actions={actions} />
             : <Canvas screen={activeScreen} state={activeState} onSetState={setState} actions={actions} />}
           <ReviewSidebar
-            model={model} comments={comments} order={order}
+            comments={comments} order={order}
             connected={connected}
             onFeedback={review.onFeedback} onApprove={review.onApprove} onDelete={remove}
-            collapsed={reviewCollapsed} onToggleCollapse={togglePanel}
+            collapsed={reviewCollapsed}
           />
         </div>
 

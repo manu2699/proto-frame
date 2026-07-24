@@ -4,6 +4,6 @@
 export function FlowTag(props: { goto?: string; opens?: string; action?: string }) {
   if (!props.goto && !props.opens && !props.action) return null;
   return (
-    <div className="wf-flow" />
+    <div className="wf-flow absolute inset-0 z-10 cursor-pointer" />
   );
 }

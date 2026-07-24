@@ -8,6 +8,14 @@
   <title>Wireframe — Dev</title>
 </head>
 <body>
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <filter id="wf-sketch-filter" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="turbulence" baseFrequency="0.02 0.06" numOctaves="3" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
   <div id="wf-root"></div>
   <script type="module" src="/dev/main.tsx"></script>
 </body>

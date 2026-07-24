@@ -4,10 +4,12 @@ import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
 import { modClasses } from "../../util";
 import { withAnnotation } from "../../Box";
+import { useSketchBorder } from "../../SketchBorder";
 
 export function RatingBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
+  const sketchBorder = useSketchBorder();
 
   const max = n.max || 5;
   const rating = n.rating ?? 0;
@@ -16,7 +18,7 @@ export function RatingBox(props: { node: WFNode & { _id?: string } }) {
 
   const box = (
     <div
-      className={"wf-box wf-rating-box " + modClasses(n)}
+      className={"wf-box wf-rating-box flex flex-col items-start justify-center p-3 min-h-0 " + modClasses(n)}
       data-wf-id={n._id}
       data-wf-commented={wf.pinOf(n._id) > 0 ? "1" : undefined}
       data-kind={n.kind}
@@ -24,16 +26,17 @@ export function RatingBox(props: { node: WFNode & { _id?: string } }) {
       data-ds={n.ds}
       onClick={(e) => handleClick(wf, n._id, n.goto, n.opens, e)}
     >
+      {sketchBorder}
       <Pin id={n._id} />
-      <div className="wf-rating-content">
+      <div className="wf-rating-content flex flex-col gap-1">
         {n.label && <span className="wf-rating-label">{n.label}</span>}
-        <div className="wf-rating-stars">
+        <div className="wf-rating-stars flex flex-row gap-1">
           {stars.map((s) => {
             const isFilled = s < rating;
             return (
               <svg
                 key={s}
-                className={"wf-rating-star" + (isFilled ? " wf-star-filled" : "")}
+                className={"wf-rating-star w-4 h-4" + (isFilled ? " wf-star-filled" : "")}
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 strokeWidth="1.5"

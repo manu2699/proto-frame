@@ -14,7 +14,7 @@ Steps to reproduce the behavior.
 What you expected to happen.
 
 **Environment**
-- wireframe-preview version: (run `npx wireframe-preview --version` or check `package.json`)
+- proto-frames version: (run `npx proto-frames --version` or check `package.json`)
 - Node version: (run `node --version`)
 - Agent harness: (Claude Code / Cursor / Windsurf / etc.)
 - OS: 

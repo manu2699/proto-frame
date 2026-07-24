@@ -63,6 +63,12 @@ assert.ok(html.includes("Revenue by month"), "model content served (2)");
 assert.ok(html.includes("wireframe-app.js"), "app bundle script tag present");
 console.log("✓ served HTML has WS bootstrap + inlined model + app tag");
 
+// 3c. per-session feedback token is embedded (required on every /feedback POST)
+const tokenMatch = html.match(/var token = "([0-9a-f]+)"/);
+assert.ok(tokenMatch, "session token present in served HTML");
+const token = tokenMatch[1];
+console.log("✓ session token embedded in served HTML");
+
 // 3b. frozen assets served from package dir
 const cssRes = await fetch(url.replace("/wireframe.html", "/wireframe.css"));
 assert.strictEqual(cssRes.status, 200, "CSS served 200");
@@ -98,13 +104,31 @@ const feedbackBlock = [
   "===== END FEEDBACK (1 item) =====",
 ].join("\n");
 
+// 4c. POST without the session token is rejected (forged cross-origin feedback)
+const noTokenRes = await fetch(`${origin}/test-feature/feedback`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ block: feedbackBlock }),
+});
+assert.strictEqual(noTokenRes.status, 403, "missing/wrong token rejected with 403");
+console.log("✓ feedback POST without session token rejected (403)");
+
+// 4d. POST with a non-JSON content-type is rejected (CORS-simple-request vector)
+const badCtRes = await fetch(`${origin}/test-feature/feedback`, {
+  method: "POST",
+  headers: { "Content-Type": "text/plain" },
+  body: JSON.stringify({ block: feedbackBlock, token }),
+});
+assert.strictEqual(badCtRes.status, 415, "non-JSON content-type rejected with 415");
+console.log("✓ feedback POST with non-JSON content-type rejected (415)");
+
 // 5. agent waits; browser sends feedback via POST; agent receives the identical block
 const waitP = client.callTool({ name: "wireframe_wait_feedback", arguments: { feature: "Test Feature", timeoutMs: 5000 } });
 await new Promise((r) => setTimeout(r, 100));
 await fetch(`${origin}/test-feature/feedback`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ block: feedbackBlock }),
+  body: JSON.stringify({ block: feedbackBlock, token }),
 });
 const got = (await waitP).content[0].text;
 assert.strictEqual(got, feedbackBlock, "received block matches sent block");
@@ -138,7 +162,7 @@ const approveBlock = [
 await fetch(`${origin}/test-feature/feedback`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ block: approveBlock }),
+  body: JSON.stringify({ block: approveBlock, token }),
 });
 await new Promise((r) => setTimeout(r, 150));
 const status = JSON.parse((await client.callTool({ name: "wireframe_status", arguments: { feature: "Test Feature" } })).content[0].text);

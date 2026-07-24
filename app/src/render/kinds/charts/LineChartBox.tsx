@@ -2,12 +2,14 @@ import type { WFNode } from "../../../types";
 import { Pin } from "../../Pin";
 import { FlowTag } from "../../FlowTag";
 import { useWF, handleClick } from "../../context";
-import { modClasses } from "../../util";
+import { modClasses, layoutClasses } from "../../util";
 import { withAnnotation } from "../../Box";
+import { useSketchBorder } from "../../SketchBorder";
 
 export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
   const wf = useWF();
   const n = props.node;
+  const sketchBorder = useSketchBorder();
 
   // Default sinusoidal / wave trend data
   const defaultData = [
@@ -45,6 +47,15 @@ export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
     ? points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")
     : "";
 
+  // Closed area path (line + drop to baseline) for a faint fill under the trend.
+  const areaPathD = points.length > 0
+    ? linePathD +
+      ` L ${points[points.length - 1].x} ${paddingTop + chartHeight}` +
+      ` L ${points[0].x} ${paddingTop + chartHeight} Z`
+    : "";
+
+  const gridFractions = [0.25, 0.5, 0.75];
+
   // Check if there is any target value defined
   const targetPoint = data.find((d) => d.target !== undefined);
   const hasConstantTarget = targetPoint !== undefined;
@@ -53,7 +64,7 @@ export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
 
   const box = (
     <div
-      className={"wf-box wf-linechart-box " + modClasses(n)}
+      className={"wf-box wf-linechart-box " + layoutClasses(n) + " " + modClasses(n)}
       data-wf-id={n._id}
       data-wf-commented={wf.pinOf(n._id) > 0 ? "1" : undefined}
       data-kind={n.kind}
@@ -61,11 +72,31 @@ export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
       data-ds={n.ds}
       onClick={(e) => handleClick(wf, n._id, n.goto, n.opens, e)}
     >
+      {sketchBorder}
       <Pin id={n._id} />
-      <div className="wf-chart-container">
+      <div className="wf-chart-container flex flex-col w-full h-full gap-2 items-stretch">
         {n.label && <span className="wf-chart-label">{n.label}</span>}
-        <div className="wf-chart-body wf-linechart-body">
-          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="wf-linechart-svg">
+        <div className="wf-chart-body wf-linechart-body flex items-center justify-center">
+          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="wf-linechart-svg w-full h-full max-h-[140px] overflow-visible">
+            {/* Faint horizontal gridlines for readability */}
+            {gridFractions.map((f) => (
+              <line
+                key={f}
+                x1={paddingLeft}
+                y1={paddingTop + chartHeight * (1 - f)}
+                x2={paddingLeft + chartWidth}
+                y2={paddingTop + chartHeight * (1 - f)}
+                className="wf-chart-grid-line"
+                stroke="var(--wf-c-line)"
+                strokeWidth="1"
+              />
+            ))}
+
+            {/* Area fill under the trend line */}
+            {areaPathD && (
+              <path d={areaPathD} className="wf-chart-area-fill" fill="var(--wf-ink)" stroke="none" />
+            )}
+
             {/* Grid & Axis Lines */}
             <line
               x1={paddingLeft}
@@ -97,8 +128,9 @@ export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
                 stroke="var(--wf-muted)"
                 strokeDasharray="3,3"
                 strokeWidth="1.2"
-                title={`Target: ${targetVal}`}
-              />
+              >
+                <title>{`Target: ${targetVal}`}</title>
+              </line>
             )}
 
             {/* Main Polyline Path */}
@@ -123,8 +155,9 @@ export function LineChartBox(props: { node: WFNode & { _id?: string } }) {
                 fill="var(--wf-ink)"
                 stroke="var(--wf-fill)"
                 strokeWidth="1"
-                title={`${p.label}: ${p.value}`}
-              />
+              >
+                <title>{`${p.label}: ${p.value}`}</title>
+              </circle>
             ))}
 
             {/* X Axis Labels */}

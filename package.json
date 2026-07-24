@@ -1,11 +1,11 @@
 {
-  "name": "wireframe-preview",
-  "version": "1.0.18",
-  "description": "Generate fast, low-fidelity HTML wireframes to preview the UI/UX implications of a feature or change — for any AI agent harness.",
+  "name": "proto-frames",
+  "version": "0.3.0",
+  "description": "Turn a feature description into interactive mid-fidelity wireframes and prototypes, installable in any AI agent harness.",
   "type": "module",
   "bin": {
-    "wireframe-preview": "bin/cli.js",
-    "wf-preview-mcp": "mcp/server.js"
+    "proto-frames": "bin/cli.js",
+    "proto-frames-mcp": "mcp/server.js"
   },
   "files": [
     "bin/",
@@ -21,16 +21,41 @@
   },
   "keywords": [
     "claude",
+    "wireframe",
+    "prototypes",
     "cursor",
     "codex",
+    "opencode",
+    "openai",
+    "anthropic",
+    "ai",
+    "plugin",
+    "harness",
+    "loop",
+    "agents",
+    "claude-code",
+    "antigravity",
+    "mcp",
+    "loop",
+    "loop-engineering",
+    "open-agents",
+    "opencode",
     "kilocode",
     "ai-agent",
     "skill",
-    "wireframe",
     "ux",
     "feature-spec"
   ],
   "license": "MIT",
+  "author": "Maneesh K",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manu2699/proto-frame.git"
+  },
+  "homepage": "https://github.com/manu2699/proto-frame#readme",
+  "bugs": {
+    "url": "https://github.com/manu2699/proto-frame/issues"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   },
@@ -47,8 +72,10 @@
     "@vitejs/plugin-react": "^4.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "motion": "^12.40.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "roughjs": "^4.6.6",
     "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "tailwindcss": "^4.0.0",

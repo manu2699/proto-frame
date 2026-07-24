@@ -1,5 +1,5 @@
 /**
- * MCP tool definitions and handlers for wireframe-preview.
+ * MCP tool definitions and handlers for proto-frames.
  */
 
 import * as store from "./store.js";
@@ -87,7 +87,15 @@ async function handleOpen(slug, args) {
   if (!result.ok) return reply(result.error, true);
 
   store.setModel(slug, result.model);
-  await preview.start();
+  try {
+    await preview.start();
+  } catch (err) {
+    return reply(
+      `Failed to start the preview server: ${err.message}\n` +
+      `If WF_PORT is set, check that port isn't already in use.`,
+      true,
+    );
+  }
   const url = `${preview.getBaseUrl()}/${slug}/wireframe.html`;
   preview.openInBrowser(url);
 
@@ -95,8 +103,14 @@ async function handleOpen(slug, args) {
     `Wireframe open at ${url}\n\n` +
     `Click any box to comment, then hit "Send to agent" (or "✓ Approve") — ` +
     `the block streams back without clipboard paste.\n\n` +
-    `Call wireframe_wait_feedback with feature "${slug}" to receive it.`,
+    `Call wireframe_wait_feedback with feature "${slug}" to receive it.` +
+    warningsBlock(result.warnings),
   );
+}
+
+function warningsBlock(warnings) {
+  if (!warnings || !warnings.length) return "";
+  return `\n\n⚠ Model warnings (non-fatal, fix before approving):\n` + warnings.map((w) => `  - ${w}`).join("\n");
 }
 
 async function handleWaitFeedback(slug, args, context = {}) {
@@ -140,7 +154,10 @@ function handleUpdate(slug, args) {
   store.setModel(slug, result.model);
   store.broadcast(slug, { type: "reload" });
   const count = f.clients.size;
-  return reply(`Model updated. Reload signal sent to ${count} connected client(s). Browser will refresh automatically.`);
+  return reply(
+    `Model updated. Reload signal sent to ${count} connected client(s). Browser will refresh automatically.` +
+    warningsBlock(result.warnings),
+  );
 }
 
 function handleStatus(slug) {

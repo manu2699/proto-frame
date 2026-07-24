@@ -28,35 +28,41 @@ export function normalizeModel(raw: unknown): WFModel {
       delete scAny.nodes;
     }
     for (const st of sc.states ?? []) {
-      st.nodes = (st.nodes ?? []).map((n) => normalizeNode(n, shared));
+      st.nodes = (st.nodes ?? []).map((n) => normalizeNode(n, shared, []));
     }
   }
   for (const md of m.modals ?? []) {
-    md.nodes = (md.nodes ?? []).map((n) => normalizeNode(n, shared));
+    md.nodes = (md.nodes ?? []).map((n) => normalizeNode(n, shared, []));
   }
   return m;
 }
 
-function normalizeNode(raw: any, shared: Record<string, WFNode>): WFNode {
+function normalizeNode(raw: any, shared: Record<string, WFNode>, refChain: string[]): WFNode {
   if (!raw || typeof raw !== "object") return raw;
 
   // A: expand $ref
   if (raw.$ref) {
+    if (refChain.includes(raw.$ref)) {
+      throw new Error(
+        `wireframe: $ref cycle detected: ${[...refChain, raw.$ref].join(" -> ")}. ` +
+        `A shared fragment can't (directly or indirectly) reference itself.`,
+      );
+    }
     const frag = shared[raw.$ref];
     if (!frag) throw new Error(`wireframe: $ref "${raw.$ref}" not found in shared`);
-    return normalizeNode({ ...frag }, shared);
+    return normalizeNode({ ...frag }, shared, [...refChain, raw.$ref]);
   }
 
   // C: shorthand row
   if (Array.isArray(raw.row)) {
     const { row, ...rest } = raw;
-    return normalizeNode({ type: "row", children: row, ...rest }, shared);
+    return normalizeNode({ type: "row", children: row, ...rest }, shared, refChain);
   }
 
   // C: shorthand col
   if (Array.isArray(raw.col)) {
     const { col, ...rest } = raw;
-    return normalizeNode({ type: "col", children: col, ...rest }, shared);
+    return normalizeNode({ type: "col", children: col, ...rest }, shared, refChain);
   }
 
   // B: infer type:"box" when missing
@@ -66,7 +72,7 @@ function normalizeNode(raw: any, shared: Record<string, WFNode>): WFNode {
 
   // recurse children
   if (Array.isArray(raw.children)) {
-    raw = { ...raw, children: raw.children.map((c: any) => normalizeNode(c, shared)) };
+    raw = { ...raw, children: raw.children.map((c: any) => normalizeNode(c, shared, refChain)) };
   }
 
   return raw as WFNode;

@@ -1,6 +1,6 @@
 ---
-name: wireframe-preview
-description: Generate fast, monochrome mid-fidelity wireframes to preview the UI/UX implications of a feature or change. Use whenever someone describes a feature, backend change, new endpoint, new field, schema change, or user flow and wants to see how the front-end is affected — phrases like "what would the UI look like", "wireframe this", "preview the screens for", "mock up the front-end", or "show me the UX impact". Works for developers, PMs, designers, and QA, with or without a backend defined. Reads an optional shared feature-spec.md (intent, persona, screens, API) and a DESIGN.md if present, otherwise asks a few quick questions. You author ONLY a small JSON model (screens, nav, boxes, flow); a prebuilt app renders it as grey boxes + line-art glyphs. Monochrome only — shows layout, information architecture, and flow, never colors, spacing, real copy, or production styling. Prefer this over building real UI any time the goal is a quick structural + flow sanity-check rather than a buildable interface.
+name: proto-frames
+description: Generate fast, monochrome mid-fidelity wireframes and clickable prototypes to preview the UI/UX implications of a feature or change. Use whenever someone describes a feature, backend change, new endpoint, new field, schema change, or user flow and wants to see how the front-end is affected — phrases like "what would the UI look like", "wireframe this", "prototype this flow", "preview the screens for", "mock up the front-end", or "show me the UX impact". Works for developers, PMs, designers, and QA, with or without a backend defined. Reads an optional shared feature-spec.md (intent, persona, screens, API) and a DESIGN.md if present, otherwise asks a few quick questions. You author ONLY a small JSON model (screens, nav, boxes, flow); a prebuilt app renders it as grey boxes + line-art glyphs with clickable screen transitions, modal overlays, and state switching. Monochrome only — shows layout, information architecture, and flow, never colors, spacing, real copy, or production styling. Prefer this over building real UI any time the goal is a quick structural + flow sanity-check rather than a buildable interface.
 ---
 
 # Wireframe Preview
@@ -142,7 +142,7 @@ The renderer expands these shorthands automatically:
 | `row`   | horizontal flex row — items vertically centered by default; use `mods:["between"]` for title + action header rows | `children` |
 | `col`   | vertical stack — shorthand: `{"col":[...]}`      | `children`                         |
 | `grid`  | N-column grid (cards/tiles)               | `cols`, `children`                          |
-| `table` | a table                                   | `headers[]`, `rows[][]`, `backend`, `ds`    |
+| `table` | a table                                   | `headers[]`, `rows[][]`, `sortable`, `sortCol`, `sortDir`, `backend`, `ds` |
 | `nav`   | enumerated navigation (IA)                | `side:"left"\|"top"`, `groups[]`            |
 | `raw`   | escape hatch for anything else            | `html`                                      |
 
@@ -164,9 +164,9 @@ The renderer expands these shorthands automatically:
 | group | kinds |
 |---|---|
 | Metrics | `kpi`, `stat` |
-| Charts | `chart:donut`, `chart:line`, `chart:bars` |
-| Content | `card`, `list`, `table`, `timeline`, `notification-list`, `chat-window` |
-| Forms & inputs | `form`, `input`, `button`, `toggle`, `slider`, `datepicker`, `upload`, `radio-group`, `checkbox-group`, `search` |
+| Charts | `chart:donut`, `chart:pie`, `chart:line`, `chart:area`, `chart:bars`, `chart:gauge` |
+| Content | `card`, `list`, `table`, `timeline`, `notification-list`, `chat-window`, `flowgraph` |
+| Forms & inputs | `form`, `input`, `select`, `button`, `toggle`, `slider`, `datepicker`, `upload`, `radio-group`, `checkbox-group`, `search` |
 | Navigation | `tabs`, `breadcrumb`, `stepper`, `accordion`, `sidebar`, `pagination` |
 | Display | `heading`, `avatar`, `image`, `badge`, `rating`, `progress`, `alert`, `modal` |
 
@@ -197,7 +197,35 @@ The renderer expands these shorthands automatically:
 | `radio-group`, `checkbox-group` | `options[]` — option label strings, `selected` (radio index), `checkedItems[]` (checkbox indices) | `"options":["Option A","Option B"], "selected":0` |
 | `notification-list` | `notifications[]` — each `{text, meta?, unread?:true}` | `"notifications":[{"text":"Lot released","unread":true}]` |
 | `chat-window` | `messages[]` — each `{from, text, sent?:true}` | `"messages":[{"from":"User","text":"Ready?","sent":true}]` |
-| `chart:bars`, `chart:line`, `chart:donut` | `chartData[]` — each `{label, value, target?}` | `"chartData":[{"label":"Jan","value":40},{"label":"Feb","value":65}]` |
+| `chart:bars`, `chart:line`, `chart:area`, `chart:donut`, `chart:pie` | `chartData[]` — each `{label, value, target?}` (`target` only affects bars/line/area) | `"chartData":[{"label":"Jan","value":40},{"label":"Feb","value":65}]` |
+| `chart:gauge` | `percent` (0–100, arc fill), `value` (center display string, defaults to `percent%`), `subtitle` | `"percent":72, "subtitle":"Health score"` |
+| `table` | `sortable:true` (renders `↕` on every header), `sortCol` (0-based, overrides with `▲`/`▼`), `sortDir:"asc"\|"desc"` | `"sortable":true, "sortCol":1, "sortDir":"desc"` |
+| `flowgraph` | `graphNodes[]` — each `{id, label, goto?, opens?}`; `graphEdges[]` — each `{from, to, label?}`; `direction:"TB"\|"LR"` (default `"TB"`) | `"direction":"LR", "graphNodes":[{"id":"a","label":"Intake"},{"id":"b","label":"Review"},{"id":"c","label":"Done"}], "graphEdges":[{"from":"a","to":"b"},{"from":"b","to":"c","label":"approve"}]` |
+
+#### Interaction recipes — fake behavior with states
+
+Real client-side behavior (actual sorting, filtering, dragging) is out of scope — the tool shows structure and flow, not working UI. Fake it instead: author two states on the same screen, one showing the "before" and one showing the "after" the interaction would produce. The reviewer flips between states; nothing runs.
+
+**Sortable table** — pair with `sortable`/`sortCol`/`sortDir` above. Second state re-orders `rows` and points the arrow at the sorted column:
+
+```jsonc
+// state "Default"
+{ "kind":"table", "sortable":true, "headers":["Order","Total","Status"],
+  "rows":[["A-102","$40","Open"],["A-101","$90","Open"]] }
+// state "Sorted by Total"
+{ "kind":"table", "sortable":true, "sortCol":1, "sortDir":"desc",
+  "headers":["Order","Total","Status"],
+  "rows":[["A-101","$90","Open"],["A-102","$40","Open"]] }
+```
+
+**Filtered list/table** — `search` kind with `filters[]` chips above the table; add a `"Filtered"` state with fewer rows and an active-filter chip:
+
+```jsonc
+// state "Default": { "kind":"search", "filters":["Status","Date"] }, table with 5 rows
+// state "Filtered": { "kind":"search", "filters":["Status: Open ✕","Date"] }, table with 2 rows
+```
+
+**Bulk selection** — `selectable:true` on a table plus a state where an action row appears above it (e.g. a `row` with `"2 selected"` label and `actions:["Delete","Export"]`) — already-supported fields, just an undocumented pairing.
 
 **`mods`** — sizing/emphasis/alignment. Combine as needed: `["tall"]`, `["taller"]`, `["placeholder"]` (muted empty/error text), `["solid"]`, `["shaded"]`, `["compact"]`, `["loose"]`, `["narrow"]`, `["center"]`, `["end"]`, `["between"]`, `["middle"]`.
 

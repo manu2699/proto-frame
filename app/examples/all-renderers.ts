@@ -161,6 +161,76 @@ const model: WFModel = {
             {
               row: [
                 {
+                  kind: "chart:bars",
+                  label: "Bar Chart",
+                  mods: ["tall"],
+                  chartData: [
+                    { label: "Jan", value: 40 },
+                    { label: "Feb", value: 75, target: 80 },
+                    { label: "Mar", value: 50 },
+                    { label: "Apr", value: 90, target: 85 },
+                  ],
+                },
+                {
+                  kind: "chart:line",
+                  label: "Line Chart",
+                  mods: ["tall"],
+                  chartData: [
+                    { label: "W1", value: 30, target: 50 },
+                    { label: "W2", value: 55, target: 50 },
+                    { label: "W3", value: 40, target: 50 },
+                    { label: "W4", value: 70, target: 50 },
+                  ],
+                },
+                {
+                  kind: "chart:donut",
+                  label: "Donut Chart",
+                  mods: ["tall"],
+                  value: "82%",
+                  subtitle: "Complete",
+                  chartData: [
+                    { label: "Done", value: 62 },
+                    { label: "In progress", value: 25 },
+                    { label: "Blocked", value: 13 },
+                  ],
+                },
+              ],
+            },
+            {
+              row: [
+                {
+                  kind: "chart:area",
+                  label: "Area Chart",
+                  mods: ["tall"],
+                  chartData: [
+                    { label: "Jan", value: 20 },
+                    { label: "Feb", value: 45 },
+                    { label: "Mar", value: 35 },
+                    { label: "Apr", value: 60 },
+                  ],
+                },
+                {
+                  kind: "chart:pie",
+                  label: "Pie Chart",
+                  mods: ["tall"],
+                  chartData: [
+                    { label: "Direct", value: 50 },
+                    { label: "Referral", value: 30 },
+                    { label: "Organic", value: 20 },
+                  ],
+                },
+                {
+                  kind: "chart:gauge",
+                  label: "Gauge Chart",
+                  mods: ["tall"],
+                  percent: 72,
+                  subtitle: "Health score",
+                },
+              ],
+            },
+            {
+              row: [
+                {
                   kind: "table",
                   headers: ["User", "Access Level", "Status"],
                   selectable: true,
@@ -318,6 +388,7 @@ const model: WFModel = {
     {
       id: "screen_content_media",
       name: "6. Content & Media",
+      role: "detail",
       nodes: [
         {
           col: [
@@ -347,6 +418,7 @@ const model: WFModel = {
     {
       id: "screen_layout_modifiers",
       name: "7. Layout & Modifiers",
+      role: "settings",
       nodes: [
         {
           col: [

@@ -16,7 +16,7 @@ const TooltipContent = React.forwardRef<
       sideOffset={sideOffset}
       collisionPadding={collisionPadding}
       className={cn(
-        "z-1200 max-w-[280px] rounded-md border border-border bg-foreground px-2.5 py-2 text-[11px] leading-[1.55] text-background shadow-lg",
+        "z-1200 max-w-[280px] rounded-[6px] border border-foreground/10 bg-foreground px-2.5 py-2 text-[11px] leading-[1.55] text-background shadow-lg",
         className,
       )}
       {...props}

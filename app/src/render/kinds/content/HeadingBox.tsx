@@ -12,7 +12,7 @@ export function HeadingBox(props: { node: WFNode & { _id?: string } }) {
 
   const box = (
     <div
-      className={`wf-box wf-heading-box wf-h${level} ${modClasses(n)}`}
+      className={`wf-box wf-heading-box wf-h${level} flex items-center justify-start py-0 px-[2px] m-0 text-left min-h-0 ${modClasses(n)}`}
       data-wf-id={n._id}
       data-wf-commented={wf.pinOf(n._id) > 0 ? "1" : undefined}
       data-kind={n.kind}

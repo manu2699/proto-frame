@@ -1,0 +1,1318 @@
+@layer components {
+  :root {
+    --wf-bg: #ffffff;
+    --wf-ink: #3f3f46;
+    --wf-line: #a1a1aa;
+    --wf-fill: #f4f4f5;
+    --wf-muted: #8a8a93;
+    --wf-tag-guess: #fbbf24;
+    --wf-radius: 4px;
+    --wf-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --wf-c-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --wf-c-line: #e4e4e7;
+    /* ── Base font size: change to scale the entire wireframe uniformly ── */
+    --wf-fs-base: 1.1rem;
+  }
+
+  .dark {
+    --wf-bg: #1f1f23;
+    --wf-ink: #f4f4f5;
+    --wf-line: #52525b;
+    --wf-fill: #27272a;
+    --wf-muted: #a1a1aa;
+    --wf-c-line: #2e2e34;
+    --wf-tag-guess: #fbbf24;
+  }
+
+  /*
+   * App root inherits sans-serif so non-box elements don't need to declare it.
+   * .wf-box overrides back to monospace; box-component variants that need sans
+   * must re-declare it explicitly (nav-item, button-box, badge-box).
+   */
+  .wf-app {
+    font-family: var(--wf-c-sans);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     BOX — base token application; layout lives in JSX / Tailwind
+     ═══════════════════════════════════════════════════════════ */
+  .wf-box {
+    position: relative;
+    font-family: var(--wf-font);
+    border: 1px dashed var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-bg);
+    color: var(--wf-ink);
+    font-size: var(--wf-fs-base);
+    transition: box-shadow 0.1s ease;
+
+    /* Single-prop semantic overrides */
+    &.wf-solid {
+      border-style: solid;
+    }
+
+    &.wf-shaded {
+      background: var(--wf-fill);
+    }
+
+    &.wf-placeholder {
+      color: var(--wf-muted);
+      font-style: italic;
+    }
+
+    /* Nested box: quieter border */
+    & .wf-box {
+      border-style: solid;
+      border-color: var(--wf-c-line);
+    }
+  }
+
+  /* ── Annotation dot markers ── */
+  .wf-box[data-backend],
+  .wf-box[data-ds] {
+    cursor: help;
+  }
+
+  .wf-box[data-backend]::before,
+  .wf-box[data-ds]::before {
+    content: "·";
+    position: absolute;
+    top: 3px;
+    right: 6px;
+    color: var(--wf-line);
+    font-weight: 700;
+  }
+
+  .wf-box[data-ds^="guess:"]::before {
+    content: "?";
+    color: var(--wf-tag-guess);
+  }
+
+  /* Commented box glow */
+  .wf-box[data-wf-commented] {
+    box-shadow: inset 0 0 0 2px var(--wfc-accent);
+  }
+
+  /* Flow-bearing box highlight */
+  .wf-box:has(> .wf-flow) {
+    background: var(--wfc-accent-soft);
+    border: 1px dashed var(--wfc-accent);
+  }
+
+  /* ── Transparent-chrome boxes (no border, no background) ── */
+  .wf-box.wf-avatar-box,
+  .wf-box.wf-breadcrumb-box,
+  .wf-box.wf-stepper-box,
+  .wf-box.wf-toggle-box,
+  .wf-box.wf-pagination-box {
+    border: none;
+    background: transparent;
+  }
+
+  /* ── Badges & pins ── */
+  .wf-new-badge,
+  .wf-changed-badge {
+    position: absolute;
+    top: 3px;
+    right: 20px;
+    font-family: var(--wf-font);
+    font-size: 0.72em;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 4px;
+    border-radius: 2px;
+    pointer-events: none;
+    user-select: none;
+    z-index: 4;
+  }
+
+  .wf-new-badge {
+    background: var(--wf-ink);
+    color: var(--wf-bg);
+  }
+
+  .wf-changed-badge {
+    color: var(--wf-ink);
+    border: 1px solid var(--wf-ink);
+  }
+
+  .wf-role-badge {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 0.68em;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    color: var(--wf-muted);
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-c-line);
+    border-radius: 3px;
+    padding: 1px 4px;
+    vertical-align: middle;
+    text-transform: lowercase;
+    font-family: var(--wf-font);
+  }
+
+  .wfc-pin {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: 0.8em;
+    font-weight: 700;
+    color: #fff;
+    background: var(--wfc-accent);
+    line-height: 1;
+    z-index: 3;
+    pointer-events: none;
+    user-select: none;
+    border-radius: 3px;
+    padding: 1px 4px;
+    min-width: 16px;
+    text-align: center;
+  }
+
+  /* ── Generic primitives ── */
+  .wf-placeholder {
+    color: var(--wf-muted);
+    font-style: italic;
+  }
+
+  .wf-glyph {
+    color: var(--wf-line);
+  }
+
+  /* ── Table cell colours ── */
+  .wf-th {
+    background: var(--wf-fill);
+    color: var(--wf-muted);
+    font-weight: 500;
+  }
+
+  .wf-td {
+    color: var(--wf-ink);
+  }
+
+  .wf-td.wf-placeholder {
+    color: var(--wf-muted);
+    font-style: italic;
+  }
+
+  .wf-sort-indicator {
+    opacity: 0.45;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SHARED TYPOGRAPHY GROUPS
+     font-family is inherited from .wf-app; only exceptions listed
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Small muted label — 0.88em / muted */
+  .wf-kpi-subtitle,
+  .wf-field-label,
+  .wf-card-label,
+  .wf-card-meta-row,
+  .wf-avatar-label,
+  .wf-rating-label,
+  .wf-datepicker-label {
+    font-size: 0.88em;
+    color: var(--wf-muted);
+  }
+
+  /* Standard body ink — 0.96em / ink */
+  .wf-radiogroup-text,
+  .wf-checkboxgroup-text,
+  .wf-notification-text,
+  .wf-toggle-label {
+    font-size: 0.96em;
+    color: var(--wf-ink);
+  }
+
+  /* Check/radio indicator glyph — 1.12em / ink (identical between kinds) */
+  .wf-radiogroup-indicator,
+  .wf-checkboxgroup-indicator {
+    font-size: 1.12em;
+    color: var(--wf-ink);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.12em;
+    height: 1.12em;
+    vertical-align: middle;
+  }
+
+  /* Check/radio indicator label — 0.88em / muted / 600 (identical between kinds) */
+  .wf-radiogroup-indicator-label,
+  .wf-checkboxgroup-header-label {
+    font-size: 0.88em;
+    color: var(--wf-muted);
+    font-weight: 600;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     TYPOGRAPHY — per-component rules
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Box label */
+  .wf-box-label {
+    color: var(--wf-ink);
+    font-size: 0.96em;
+    line-height: 1.3;
+  }
+
+  /* ── Nav ── */
+  .wf-nav-group-label {
+    font-size: 0.88em;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--wf-muted);
+  }
+
+  .wf-box.wf-nav-item {
+    border-style: solid;
+    border-color: var(--wf-line);
+    font-family: var(--wf-c-sans);
+    font-size: 1.2em;
+  }
+
+  .wf-box.wf-nav-active {
+    border-color: var(--wf-ink);
+    background: var(--wf-fill);
+    font-weight: 600;
+  }
+
+  .wf-nav-badge {
+    font-size: 0.88em;
+    font-weight: 700;
+    color: var(--wf-muted);
+    border: 1px solid var(--wf-line);
+    border-radius: 999px;
+  }
+
+  /* ── Button ── */
+  .wf-box.wf-button-box {
+    font-family: var(--wf-c-sans);
+    font-weight: 600;
+    font-size: 1.05em;
+    border-style: solid;
+    background: var(--wf-ink) !important;
+    color: var(--wf-bg) !important;
+    border-color: var(--wf-ink);
+    cursor: pointer;
+
+    &.wf-solid {
+      background: var(--wf-ink) !important;
+      color: var(--wf-bg) !important;
+      border-color: var(--wf-ink);
+    }
+
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+
+  /* ── Heading ── */
+  .wf-box.wf-heading-box {
+    border-style: solid;
+    border-color: transparent;
+    background: transparent;
+
+    &.wf-solid {
+      border-color: var(--wf-line);
+    }
+  }
+
+  .wf-heading-label {
+    color: var(--wf-ink);
+    font-weight: 700;
+  }
+
+  .wf-heading-box {
+    &.wf-h1 .wf-heading-label {
+      font-size: 1.92em;
+      letter-spacing: -0.02em;
+    }
+
+    &.wf-h2 .wf-heading-label {
+      font-size: 1.6em;
+      letter-spacing: -0.01em;
+    }
+
+    &.wf-h3 .wf-heading-label {
+      font-size: 1.28em;
+    }
+
+    &.wf-h4 .wf-heading-label {
+      font-size: 1.12em;
+    }
+
+    &.wf-h5 .wf-heading-label {
+      font-size: 0.96em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    &.wf-h6 .wf-heading-label {
+      font-size: 0.88em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--wf-muted);
+    }
+  }
+
+  /* ── Input ── */
+  .wf-box.wf-input-wrapper-box {
+    border-style: solid;
+    border-color: var(--wf-line);
+    background: var(--wf-bg);
+    cursor: text;
+  }
+
+  .wf-input-placeholder {
+    color: var(--wf-muted);
+    font-size: 1.04em;
+  }
+
+  /* ── KPI ── */
+  .wf-kpi-label {
+    font-size: 0.88em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    color: var(--wf-muted);
+  }
+
+  .wf-kpi-value {
+    font-size: 1.92em;
+    font-weight: 700;
+    color: var(--wf-ink);
+  }
+
+  .wf-kpi-trend {
+    font-size: 1.28em;
+    font-weight: 700;
+
+    &.wf-trend-up {
+      color: var(--wf-ink);
+    }
+
+    &.wf-trend-down {
+      color: var(--wf-muted);
+    }
+  }
+
+  /* ── Form ── */
+  .wf-form-title {
+    font-weight: 600;
+    font-size: 1.12em;
+    color: var(--wf-ink);
+  }
+
+  .wf-field-input {
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-bg);
+  }
+
+  .wf-select-arrow {
+    font-size: 0.8em;
+    color: var(--wf-muted);
+  }
+
+  /* ── Toggle (shared by form-field variant and standalone Toggle kind) ──
+     Both call sites render the same 36×20 track / 14×14 knob / 2px padding
+     (w-9 h-5, w-3.5 h-3.5, p-0.5), so the checked-state travel distance is
+     one fixed value — expressed via calc() from those dimensions so it's
+     self-documenting instead of a bare magic number. */
+  .wf-toggle-switch {
+    --wf-toggle-w: 36px;
+    --wf-toggle-knob: 14px;
+    --wf-toggle-pad: 2px;
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: 999px;
+    transition: background 0.1s ease;
+    display: flex;
+    align-items: center;
+  }
+
+  .wf-toggle-knob {
+    background: var(--wf-line);
+    border-radius: 50%;
+    transition: transform 0.1s ease, background 0.1s ease;
+  }
+
+  .wf-toggle-content {
+    cursor: pointer;
+  }
+
+  .wf-toggle-checked {
+    background: var(--wf-ink);
+    border-color: var(--wf-ink);
+
+    & .wf-toggle-knob {
+      transform: translateX(calc(var(--wf-toggle-w) - var(--wf-toggle-knob) - 2 * var(--wf-toggle-pad)));
+      background: var(--wf-bg);
+    }
+  }
+
+  /* ── Card ── */
+  .wf-card-title {
+    font-size: 1.08em;
+    font-weight: 700;
+    color: var(--wf-ink);
+  }
+
+  .wf-card-meta-item::after {
+    content: "•";
+    margin-left: 8px;
+    color: var(--wf-line);
+  }
+
+  .wf-card-meta-item:last-child::after {
+    content: "";
+  }
+
+  .wf-card-badge {
+    font-size: 0.8em;
+    font-weight: 600;
+    color: var(--wf-ink);
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: 4px;
+  }
+
+  .wf-card-footer {
+    border-top: 1px solid var(--wf-c-line);
+    font-size: 0.88em;
+    color: var(--wf-muted);
+  }
+
+  /* ── List ── */
+  .wf-list-header {
+    font-size: 1.04em;
+    font-weight: 600;
+    color: var(--wf-ink);
+    border-bottom: 1px solid var(--wf-c-line);
+  }
+
+  .wf-list-item {
+    font-size: 0.96em;
+    color: var(--wf-ink);
+    border-bottom: 1px solid var(--wf-c-line);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .wf-list-bullet {
+    color: var(--wf-line);
+    font-weight: bold;
+  }
+
+  /* ── Tabs ── */
+  .wf-tab-item {
+    font-size: 0.96em;
+    font-weight: 500;
+    color: var(--wf-muted);
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+
+    &.wf-tab-active {
+      color: var(--wf-ink);
+      border-bottom-color: var(--wf-ink);
+      font-weight: 600;
+    }
+  }
+
+  /* ── Avatar ── */
+  .wf-avatar-circle {
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: 50%;
+  }
+
+  .wf-avatar-initials {
+    font-size: 1.04em;
+    font-weight: 600;
+    color: var(--wf-ink);
+  }
+
+  /* ── Search ── */
+  .wf-box.wf-search-box {
+    border-style: solid;
+  }
+
+  .wf-search-input-container {
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-bg);
+  }
+
+  .wf-search-icon {
+    color: var(--wf-muted);
+  }
+
+  .wf-search-placeholder {
+    font-size: 0.96em;
+    color: var(--wf-muted);
+  }
+
+  .wf-search-filter-chip {
+    font-size: 0.88em;
+    color: var(--wf-ink);
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: 999px;
+  }
+
+  /* ── Breadcrumb ── */
+  .wf-breadcrumb-item {
+    font-size: 0.96em;
+    color: var(--wf-muted);
+  }
+
+  .wf-breadcrumb-active {
+    color: var(--wf-ink);
+    font-weight: 600;
+  }
+
+  .wf-breadcrumb-separator {
+    color: var(--wf-line);
+  }
+
+  /* ── Stepper ── */
+  .wf-stepper-step {
+    font-size: 0.96em;
+  }
+
+  .wf-step-icon {
+    font-size: 1.12em;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.12em;
+    height: 1.12em;
+    vertical-align: middle;
+  }
+
+  .wf-step-done {
+    color: var(--wf-ink);
+    font-weight: 500;
+  }
+
+  .wf-step-active {
+    color: var(--wf-ink);
+    font-weight: 600;
+  }
+
+  .wf-step-pending {
+    color: var(--wf-muted);
+  }
+
+  .wf-stepper-connector {
+    background: var(--wf-c-line);
+  }
+
+  .wf-connector-filled {
+    background: var(--wf-ink);
+  }
+
+  /* ── Accordion ── */
+  .wf-accordion-section {
+    border: 1px solid var(--wf-c-line);
+    border-radius: var(--wf-radius);
+    overflow: hidden;
+  }
+
+  .wf-accordion-header {
+    background: var(--wf-fill);
+    font-size: 0.96em;
+    font-weight: 500;
+    color: var(--wf-ink);
+  }
+
+  .wf-accordion-chevron {
+    font-size: 0.8em;
+    color: var(--wf-muted);
+  }
+
+  .wf-accordion-body {
+    background: var(--wf-bg);
+    border-top: 1px solid var(--wf-c-line);
+  }
+
+  .wf-accordion-body-placeholder {
+    border: 1px dashed var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-fill);
+  }
+
+  /* ── Sidebar ── */
+  .wf-box.wf-sidebar-box {
+    border-style: solid;
+    border-color: var(--wf-line);
+  }
+
+  .wf-sidebar-group-label {
+    font-size: 0.76em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--wf-muted);
+  }
+
+  .wf-sidebar-item {
+    font-size: 0.96em;
+    color: var(--wf-ink);
+    border-radius: var(--wf-radius);
+  }
+
+  .wf-sidebar-active {
+    background: var(--wf-ink) !important;
+    color: var(--wf-bg) !important;
+    font-weight: 600;
+  }
+
+  /* ── Pagination ── */
+  .wf-pagination-btn {
+    font-size: 0.92em;
+    font-weight: 500;
+    color: var(--wf-ink);
+    background: var(--wf-bg);
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+    user-select: none;
+  }
+
+  .wf-pagination-active {
+    border: 2px solid var(--wf-ink);
+    font-weight: 700;
+  }
+
+  .wf-pagination-nav {
+    font-weight: bold;
+    background: var(--wf-fill);
+  }
+
+  /* ── Table action ── */
+  .wf-table-action-btn {
+    font-size: 0.88em;
+    text-decoration: underline;
+    color: var(--wf-ink);
+    cursor: pointer;
+  }
+
+  /* ── Timeline ── */
+  .wf-timeline-line {
+    background: var(--wf-c-line);
+  }
+
+  .wf-timeline-dot {
+    border: 2px solid var(--wf-line);
+    border-radius: 50%;
+    background: var(--wf-bg);
+  }
+
+  .wf-timeline-event-label {
+    font-size: 0.96em;
+    font-weight: 600;
+    color: var(--wf-ink);
+  }
+
+  .wf-timeline-event-meta {
+    font-size: 0.84em;
+    color: var(--wf-muted);
+  }
+
+  /* ── Progress ── */
+  .wf-progress-header {
+    font-size: 0.88em;
+  }
+
+  .wf-progress-label {
+    font-weight: 600;
+    color: var(--wf-ink);
+  }
+
+  .wf-progress-text {
+    color: var(--wf-muted);
+  }
+
+  .wf-progress-track {
+    border: 1px solid var(--wf-line);
+    border-radius: 999px;
+    background: var(--wf-fill);
+    overflow: hidden;
+  }
+
+  .wf-progress-fill {
+    background: var(--wf-line);
+    border-radius: 999px;
+    transition: width 0.1s ease;
+  }
+
+  /* ── Badge ── */
+  .wf-box.wf-badge-box {
+    border-radius: 999px;
+    font-family: var(--wf-c-sans);
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--wf-ink);
+    background: var(--wf-fill);
+  }
+
+  .wf-badge-default {
+    border: 1px solid var(--wf-line);
+  }
+
+  .wf-badge-warning {
+    border: 1px dashed var(--wf-line);
+  }
+
+  .wf-badge-error {
+    border: 3px double var(--wf-line);
+  }
+
+  .wf-badge-success {
+    border: 1px dotted var(--wf-line);
+  }
+
+  /* ── Rating ── */
+  .wf-rating-star {
+    color: var(--wf-line);
+  }
+
+  .wf-star-filled {
+    color: var(--wf-ink);
+  }
+
+  /* ── Slider ── */
+  .wf-slider-header {
+    font-size: 0.88em;
+  }
+
+  .wf-slider-label {
+    font-weight: 600;
+    color: var(--wf-ink);
+  }
+
+  .wf-slider-value {
+    color: var(--wf-muted);
+  }
+
+  .wf-slider-track {
+    background: var(--wf-c-line);
+    border-radius: 2px;
+  }
+
+  .wf-slider-track-fill {
+    background: var(--wf-line);
+    border-radius: 2px;
+  }
+
+  .wf-slider-thumb {
+    border: 1px solid var(--wf-ink);
+    border-radius: 50%;
+    background: var(--wf-bg);
+    transform: translate(-50%, -50%);
+  }
+
+  /* ── Datepicker ── */
+  .wf-datepicker-field {
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-bg);
+  }
+
+  .wf-datepicker-value {
+    font-size: 0.96em;
+    color: var(--wf-ink);
+  }
+
+  .wf-datepicker-icon {
+    color: var(--wf-muted);
+  }
+
+  /* ── Upload ── */
+  .wf-upload-field {
+    border: 1px dashed var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-fill);
+  }
+
+  .wf-box.wf-upload-box {
+    border: 1.5px dashed var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-fill);
+  }
+
+  .wf-upload-icon {
+    color: var(--wf-muted);
+  }
+
+  .wf-upload-label {
+    font-size: 0.92em;
+    color: var(--wf-muted);
+  }
+
+  /* ── Alert ── */
+  .wf-alert-icon {
+    font-family: var(--wf-font);
+    font-size: 0.96em;
+    font-weight: 700;
+    color: var(--wf-ink);
+  }
+
+  .wf-alert-message {
+    font-size: 0.96em;
+    color: var(--wf-ink);
+  }
+
+  /* All alert variants share the fill background */
+  .wf-alert-info,
+  .wf-alert-warning,
+  .wf-alert-error,
+  .wf-alert-success {
+    background: var(--wf-fill);
+  }
+
+  .wf-alert-info {
+    border: 1px solid var(--wf-line);
+  }
+
+  .wf-alert-warning {
+    border: 1px dashed var(--wf-line);
+  }
+
+  .wf-alert-error {
+    border: 3px double var(--wf-line);
+  }
+
+  .wf-alert-success {
+    border: 1px dotted var(--wf-line);
+  }
+
+  /* ── Modal ── */
+  .wf-box.wf-modal-box {
+    border-style: solid;
+    border-color: var(--wf-ink);
+    border-width: 1.5px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: var(--wf-bg);
+  }
+
+  .wf-modal-header {
+    border-bottom: 1px solid var(--wf-c-line);
+  }
+
+  .wf-modal-footer {
+    border-top: 1px solid var(--wf-c-line);
+  }
+
+  .wf-modal-title {
+    font-size: 1.12em;
+    font-weight: 700;
+    color: var(--wf-ink);
+  }
+
+  .wf-modal-close {
+    font-size: 1.44em;
+    color: var(--wf-muted);
+    line-height: 1;
+  }
+
+  .wf-modal-body-placeholder {
+    border: 1px dashed var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-fill);
+  }
+
+  .wf-modal-footer-btn {
+    font-size: 0.88em;
+    font-weight: 500;
+    color: var(--wf-ink);
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+  }
+
+  /* ── Notification List ── */
+  .wf-notification-list-header-label {
+    font-size: 0.88em;
+    color: var(--wf-muted);
+    font-weight: 600;
+    border-bottom: 1px solid var(--wf-c-line);
+  }
+
+  .wf-notification-item {
+    border-bottom: 1px solid var(--wf-c-line);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .wf-notification-dot {
+    color: var(--wf-ink);
+    font-size: 0.8em;
+    line-height: 1;
+  }
+
+  .wf-notification-meta {
+    font-size: 0.8em;
+    color: var(--wf-muted);
+  }
+
+  .wf-notification-unread .wf-notification-text {
+    font-weight: 600;
+  }
+
+  /* ── Chat ── */
+  .wf-chat-header {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--wf-ink);
+    border-bottom: 1px solid var(--wf-c-line);
+  }
+
+  .wf-chat-bubble {
+    font-size: 0.92em;
+    border-radius: var(--wf-radius);
+  }
+
+  .wf-chat-bubble-sent .wf-chat-bubble {
+    background: var(--wf-ink);
+    color: var(--wf-bg);
+    border: 1px solid var(--wf-ink);
+  }
+
+  .wf-chat-bubble-received .wf-chat-bubble {
+    background: var(--wf-fill);
+    color: var(--wf-ink);
+    border: 1px solid var(--wf-line);
+  }
+
+  .wf-chat-bubble-sender {
+    font-size: 0.72em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    opacity: 0.75;
+  }
+
+  .wf-chat-bubble-sent .wf-chat-bubble-sender {
+    text-align: right;
+  }
+
+  .wf-chat-bubble-received .wf-chat-bubble-sender {
+    color: var(--wf-muted);
+  }
+
+  .wf-chat-bubble-text {
+    line-height: 1.35;
+  }
+
+  .wf-chat-footer {
+    border-top: 1px solid var(--wf-c-line);
+  }
+
+  .wf-chat-input-placeholder {
+    font-size: 0.88em;
+    color: var(--wf-muted);
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+    background: var(--wf-bg);
+  }
+
+  .wf-chat-send-btn {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--wf-ink);
+    background: var(--wf-fill);
+    border: 1px solid var(--wf-line);
+    border-radius: var(--wf-radius);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     SKETCH MODE — scales --wf-fs-base so all em sizes follow
+     ═══════════════════════════════════════════════════════════ */
+  [data-drawmode="sketch"] {
+    --wf-fs-base: 1.3rem;
+
+    /* Override dialog and modal container fonts and borders */
+    &.wf-dialog-content,
+    &.wf-modal-preview-card,
+    & .wf-dialog-content,
+    & .wf-modal-preview-card {
+      --wf-font: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      --wf-c-sans: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      font-family: var(--wf-font) !important;
+      border-color: transparent !important;
+      border-radius: 0px !important;
+
+      & [role="heading"],
+      & h2,
+      & .wf-modal-title {
+        font-size: 1.5rem !important;
+        font-weight: bold !important;
+      }
+    }
+
+    & .wf-box {
+      --wf-font: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      --wf-c-sans: 'Comic Sans MS', 'Segoe Print', 'Bradley Hand', cursive;
+      /* background: #fefefe; */
+      letter-spacing: 0.2ch;
+    }
+
+    /* rough.js SVG replaces CSS border; fill handles background at z:-1 */
+    & .wf-box:has(> svg.wf-sketch-border) {
+      border-color: transparent;
+      isolation: isolate;
+    }
+    & .wf-box:has(> svg.wf-sketch-border):not(.wf-badge-box):not(.wf-nav-active) {
+      background: none;
+    }
+
+    /* Flow boxes keep their accent colour */
+    & .wf-box:has(> .wf-flow) {
+      background: var(--wfc-accent-soft);
+    }
+
+    & .wf-box-label {
+      letter-spacing: 0.03em;
+    }
+
+    & .wf-heading-box {
+      &.wf-h1 .wf-heading-label { letter-spacing: 0.06em; }
+      &.wf-h2 .wf-heading-label { letter-spacing: 0.05em; }
+      &.wf-h3 .wf-heading-label { letter-spacing: 0.04em; }
+      &.wf-h4 .wf-heading-label { letter-spacing: 0.03em; }
+    }
+
+    /* table header: strip fill so grid lines show through */
+    & .wf-th {
+      background: transparent;
+    }
+
+    /* Any non-.wf-box element that mounts its own rough.js border (form
+       fields, badges, toggle switch, slider thumb, progress track, pagination
+       buttons, accordion sections, modal footer buttons, chat bubbles) loses
+       its flat CSS border — the SVG draws it instead. Radius is left alone:
+       SketchBorder reads it directly to size the rough rect's own corners. */
+    & :has(> svg.wf-sketch-border):not(.wf-box) {
+      border-color: transparent;
+      isolation: isolate;
+    }
+
+    /* search filter chips / nav badges — pill shape; keep natural rounded border, no rough.js */
+    & .wf-search-filter-chip {
+      border: 1px solid var(--wf-ink);
+      background: transparent;
+    }
+    & .wf-nav-badge {
+      border: 1px solid var(--wf-ink);
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    /* ── Sketch divider lines: <SketchLine/> overlay replaces the flat border ── */
+    & .wf-card-footer,
+    & .wf-modal-header,
+    & .wf-modal-footer,
+    & .wf-list-header,
+    & .wf-chat-header,
+    & .wf-chat-footer {
+      position: relative;
+    }
+    & .wf-card-footer,
+    & .wf-modal-footer,
+    & .wf-chat-footer {
+      border-top: none;
+    }
+    & .wf-modal-header,
+    & .wf-list-header,
+    & .wf-chat-header {
+      border-bottom: none;
+    }
+    & .wf-notification-item {
+      position: relative;
+      border-bottom: none;
+    }
+
+    & .wf-stepper-connector,
+    & .wf-connector-filled,
+    & .wf-timeline-line {
+      background: none;
+    }
+
+    /* ── Chart axes ── */
+    & .wf-chart-axis-y { border-left-color: transparent; }
+    & .wf-chart-axis-x { border-bottom-color: transparent; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CHARTS — SVG fill/stroke cannot be Tailwind; colours only
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Every chart box shares this padding (none of them set it via Tailwind
+     utility classes individually) — content sat flush against the border,
+     most visible in sketch mode where the hand-drawn wobble eats into it. */
+  .wf-box[data-kind^="chart:"] {
+    padding: 0.85em;
+  }
+
+  .wf-chart-label {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--wf-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .wf-table-label {
+    display: block;
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--wf-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.6em 0.6em 0;
+  }
+
+  .wf-chart-axis-y {
+    border-left: 1px solid var(--wf-line);
+  }
+
+  .wf-chart-axis-x {
+    border-bottom: 1px solid var(--wf-line);
+  }
+
+  .wf-chart-grid-line {
+    stroke-dasharray: 2, 3;
+    opacity: 0.7;
+  }
+
+  .wf-chart-area-fill {
+    opacity: 0.06;
+  }
+
+  .wf-chart-area-fill-solid {
+    opacity: 0.16;
+  }
+
+  .wf-pie-segment {
+    color: var(--wf-ink);
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  /* font-size/weight set as SVG attributes (viewBox-unit space), not here —
+     CSS would override the presentation attribute and re-introduce the
+     em-vs-viewBox-unit mismatch every other chart's <text> already avoids. */
+  .wf-gauge-subtitle-text {
+    letter-spacing: 0.05em;
+  }
+
+  .wf-gauge-value-arc {
+    transition: stroke-dasharray 0.3s ease;
+  }
+
+  .wf-chart-bar-group {
+    & .wf-chart-bar-main {
+      transition: opacity 0.15s ease;
+    }
+    &:hover .wf-chart-bar-main {
+      opacity: 0.75;
+    }
+  }
+
+  .wf-donut-segment {
+    transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease, opacity 0.15s ease;
+    color: var(--wf-ink);
+
+    &:hover {
+      opacity: 1 !important;
+    }
+  }
+
+  .wf-donut-legend-swatch {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--wf-ink);
+    flex-shrink: 0;
+  }
+
+  .wf-donut-center-value {
+    font-family: var(--wf-font);
+    font-size: 1.28em;
+    font-weight: 700;
+    color: var(--wf-ink);
+    line-height: 1.1;
+  }
+
+  .wf-donut-center-label {
+    font-size: 0.72em;
+    color: var(--wf-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+
+  .wf-donut-legend-item {
+    font-size: 0.88em;
+    color: var(--wf-ink);
+  }
+
+  .wf-donut-legend-indicator {
+    font-size: 0.8em;
+    display: inline-block;
+    line-height: 1;
+    color: var(--wf-ink);
+    flex-shrink: 0;
+  }
+
+  .wf-donut-legend-text {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  .wf-chart-axis-line {
+    stroke: var(--wf-line);
+  }
+
+  .wf-chart-target-line {
+    stroke: var(--wf-muted);
+  }
+
+  .wf-chart-line-path {
+    stroke: var(--wf-ink);
+  }
+
+  .wf-chart-line-dot {
+    fill: var(--wf-ink);
+    stroke: var(--wf-fill);
+    transition: r 0.1s ease;
+
+    &:hover {
+      r: 4.5;
+    }
+  }
+
+  /* SVG text: font-family can't rely on DOM inheritance, keep explicit */
+  .wf-chart-axis-text {
+    font-family: var(--wf-c-sans);
+    fill: var(--wf-muted);
+  }
+}

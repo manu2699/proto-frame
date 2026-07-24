@@ -1,0 +1,250 @@
+/* ── shadcn theme tokens → brand palette (CHROME only) ── */
+:root {
+  --radius: 0rem;
+
+  --background: #f4f4f5;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+
+  /* brand blue */
+  --primary: #0988c8;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+
+  /* soft-blue accent (hover surfaces, active pills) */
+  --accent: #e6f4fb;
+  --accent-foreground: #0b5e86;
+
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  --border: #e4e4e7;
+  --input: #d4d4d8;
+  --ring: #0988c8;
+
+  /* extra brand accents used by chrome */
+  --wfc-accent: #0988c8;
+  --wfc-accent-soft: #fbfeff;
+  --wfc-accent-2: #fcc800;
+  --wfc-accent-2-ink: #0f1115;
+  --wfc-approve: #fcc800;
+  --wfc-approve-foreground: #0f1115;
+  --wfc-approve-soft: #dcfce7;
+}
+
+.dark {
+  --background: #18181b;
+  --foreground: #f4f4f5;
+  --card: #1f1f23;
+  --card-foreground: #f4f4f5;
+  --popover: #1f1f23;
+  --popover-foreground: #f4f4f5;
+
+  --primary: #2aa6e0;
+  --primary-foreground: #08222e;
+
+  --secondary: #27272a;
+  --secondary-foreground: #f4f4f5;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+
+  --accent: #0e3247;
+  --accent-foreground: #cde9f7;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #18181b;
+
+  --border: #2e2e34;
+  --input: #3a3a40;
+  --ring: #2aa6e0;
+
+  --wfc-accent: #2aa6e0;
+  --wfc-accent-soft: #0e3247;
+  /* --wfc-approve: #22c55e; */
+  --wfc-approve-soft: #0f1115;
+  --wfc-approve: #fcc800;
+  --wfc-approve-foreground: #0f1115;
+}
+
+/* Map tokens into Tailwind's color/radius theme so `bg-background`,
+   `text-muted-foreground`, `border-border`, `rounded-lg`, etc. resolve. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-wfc-accent: var(--wfc-accent);
+  --color-wfc-accent-soft: var(--wfc-accent-soft);
+  --color-wfc-accent-2: var(--wfc-accent-2);
+  --color-wfc-approve: var(--wfc-approve);
+  --color-wfc-approve-foreground: var(--wfc-approve-foreground);
+  --color-wfc-approve-soft: var(--wfc-approve-soft);
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+/* ── Operating layer: dashed structural borders, 0 radius ── */
+/* Applied globally so chrome feels consistent with the wireframe aesthetic */
+.wf-app>header {
+  border-bottom-style: dashed;
+}
+
+/* Panel internal section dividers go dashed */
+.wf-app aside .border-b,
+.wf-app aside .border-t {
+  border-style: dashed;
+}
+
+@layer base {
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--wf-c-sans);
+    -webkit-font-smoothing: antialiased;
+    font-size: 13px;
+    color: var(--foreground);
+    background: var(--background);
+    overflow: hidden;
+  }
+}
+
+/* ── flow map strip (H) ── */
+.wf-flowmap {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  font-family: var(--wf-font);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.wf-flowmap-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-foreground);
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.wf-flowmap-rows {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.wf-flowmap-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wf-flowmap-node {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: var(--wf-font);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.wf-flowmap-node:hover {
+  background: var(--accent);
+}
+
+.wf-flowmap-arrow {
+  color: var(--muted-foreground);
+}
+
+.wf-flowmap-via {
+  color: var(--muted-foreground);
+  font-style: italic;
+  font-size: 10.5px;
+}
+
+/* Canvas shell: size containment context for child container queries */
+.wf-canvas-shell {
+  container-type: size;
+}
+
+/* Hide scrollbar on screen tab strip */
+.wf-screen-tabs {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.wf-screen-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dot-grid texture for the canvas background */
+.wf-canvas-dotgrid {
+  background-color: var(--background);
+  background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--border) 90%, transparent) 1px,
+      transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* In comment mode, every annotatable box signals it's clickable + shows hover feedback. */
+.wf-app[data-mode="comment"] .wf-box[data-wf-id] {
+  cursor: pointer;
+}
+
+.wf-app[data-mode="comment"] .wf-box[data-wf-id]:hover {
+  border-style: solid;
+  border-color: var(--wf-c-line);
+  background: var(--wf-fill);
+}
+
+/* In click-through mode, flow-bearing boxes signal they're navigable. */
+.wf-app[data-mode="click"] .wf-box:has(> .wf-flow) {
+  cursor: pointer;
+}
+
+.wf-app[data-mode="click"] .wf-box:has(> .wf-flow):hover {
+  border-color: var(--wfc-accent);
+  background: var(--wfc-accent);
+  color: var(--wfc-accent-foreground);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}

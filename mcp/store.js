@@ -31,6 +31,18 @@ export function get(slug) {
   return f;
 }
 
+// Read-only existence check — unlike get(), never creates a phantom entry.
+// Used to tell "unknown route" (404) apart from "feature exists, model not
+// set yet" (waiting page) without every stray request (favicon.ico, a typo'd
+// slug, a port scan) leaving a permanent entry in the feature map.
+export function has(slug) {
+  return features.has(slug);
+}
+
+export function listSlugs() {
+  return [...features.keys()];
+}
+
 export function setModel(slug, model) {
   const f = get(slug);
   const screenCount = model?.screens?.length || 0;
@@ -67,7 +79,50 @@ export function validateModel(raw) {
         `Pass the full WFModel object (with a "screens" array) as the "model" argument, not a wrapper around it.`,
     };
   }
-  return { ok: true, model };
+  return { ok: true, model, warnings: collectWarnings(model) };
+}
+
+/**
+ * Non-fatal structural checks: dangling goto/opens targets and duplicate ids.
+ * These don't block the render (the browser degrades gracefully — a dangling
+ * goto is just a click that does nothing) but the agent should know so it can
+ * self-correct instead of the user finding a dead click during review.
+ */
+function collectWarnings(model) {
+  const warnings = [];
+  const screenIds = new Set();
+  const modalIds = new Set();
+
+  for (const sc of model.screens || []) {
+    if (sc.id && screenIds.has(sc.id)) warnings.push(`duplicate screen id "${sc.id}"`);
+    if (sc.id) screenIds.add(sc.id);
+  }
+  for (const md of model.modals || []) {
+    if (md.id && modalIds.has(md.id)) warnings.push(`duplicate modal id "${md.id}"`);
+    if (md.id) modalIds.add(md.id);
+  }
+
+  const visit = (n, where) => {
+    if (!n || typeof n !== "object") return;
+    if (n.goto && !screenIds.has(n.goto)) warnings.push(`"${where}" has goto:"${n.goto}" — no screen with that id`);
+    if (n.opens && !modalIds.has(n.opens)) warnings.push(`"${where}" has opens:"${n.opens}" — no modal with that id`);
+    if (n.type === "nav") {
+      for (const g of n.groups || []) {
+        for (const it of g.items || []) visit(it, where);
+      }
+    }
+    for (const c of n.children || []) visit(c, where);
+  };
+
+  for (const sc of model.screens || []) {
+    for (const st of sc.states ?? []) for (const n of st.nodes || []) visit(n, `screen "${sc.name || sc.id}"`);
+    for (const n of sc.nodes || []) visit(n, `screen "${sc.name || sc.id}"`);
+  }
+  for (const md of model.modals || []) {
+    for (const n of md.nodes || []) visit(n, `modal "${md.name || md.id}"`);
+  }
+
+  return warnings;
 }
 
 /**

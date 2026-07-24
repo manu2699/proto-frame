@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * wireframe-preview MCP server — entry point.
+ * proto-frames MCP server — entry point.
  *
  * Serves wireframe previews from in-memory models over localhost.
  * No files are written to the user's project.
@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PKG_VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
 
 const server = new Server(
-  { name: "wireframe-preview", version: PKG_VERSION },
+  { name: "proto-frames", version: PKG_VERSION },
   { capabilities: { tools: {} } },
 );
 

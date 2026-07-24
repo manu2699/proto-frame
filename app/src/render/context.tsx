@@ -6,6 +6,7 @@ import { createContext, useContext, type ReactNode } from "react";
 
 export interface WFActions {
   mode: () => "comment" | "prototype";
+  drawMode: () => "sketch" | "clean";
   comment: (id: string, el: HTMLElement) => void;
   goto: (screenId: string) => void;
   openModal: (modalId: string) => void;

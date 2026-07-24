@@ -1,12 +1,12 @@
-# Contributing to wireframe-preview
+# Contributing to proto-frames
 
 Thanks for your interest in contributing. This is a focused tool — keep PRs tightly scoped.
 
 ## Quick start
 
 ```bash
-git clone https://github.com/your-org/wireframe-preview
-cd wireframe-preview
+git clone https://github.com/manu2699/proto-frame
+cd proto-frames
 npm install
 ```
 
@@ -71,7 +71,7 @@ assets/
   wireframe.css   Frozen stylesheet (copied verbatim per wireframe)
   DESIGN.md       Scaffold for the project-level design system vocabulary
   feature-spec.md Scaffold for the shared feature spec
-  dist/           Build output — wireframe-app.js (generated, committed)
+  dist/           Build output — wireframe-app.js (generated, ignored)
 
 bin/cli.js        CLI: install / uninstall / mcp / list commands
 mcp/
@@ -122,7 +122,7 @@ server is split into four modules:
 
 ```bash
 # Register with your harness (Claude Code, Cursor, VS Code, etc.)
-npx wireframe-preview mcp claude        # or: cursor, vscode, windsurf, etc.
+npx proto-frames mcp claude        # or: cursor, vscode, windsurf, etc.
 
 # The harness launches the server automatically when agent calls wireframe_* tools.
 # Entry point: node mcp/server.js (over stdio)
@@ -133,9 +133,9 @@ This writes to `~/.claude/claude_desktop_config.json` (or equivalent) something 
 ```json
 {
   "mcpServers": {
-    "wireframe-preview": {
+    "proto-frames": {
       "command": "node",
-      "args": ["/absolute/path/to/wireframe-preview/mcp/server.js"]
+      "args": ["/absolute/path/to/proto-frames/mcp/server.js"]
     }
   }
 }
@@ -211,7 +211,7 @@ Iterate with `npm run dev` (HMR). When the behavior is right, rebuild the shippe
 npm run build
 ```
 
-This emits a new `assets/dist/wireframe-app.js`. Commit both the source change and the rebuilt bundle. The bundle is committed so consumers get a working artifact without a build step.
+This emits a new `assets/dist/wireframe-app.js`. Build outputs are ignored in Git and automatically built/compiled during package installation or publication.
 
 Key constraints:
 - The renderer must work from `file://` (standalone) and from the MCP `http://` server.
@@ -263,7 +263,7 @@ node test/serve-demo.mjs   # boots MCP, prints URL — verify against the real h
 ## Pull request guidelines
 
 - One concern per PR — don't bundle unrelated changes.
-- If you change `app/src/`, run `npx tsc --noEmit` and include the rebuilt `assets/dist/wireframe-app.js` in the same commit.
+- If you change `app/src/`, run `npx tsc --noEmit` to verify type safety. (No need to commit the built files as they are ignored).
 - If you change `wireframe.css`, verify the rendered output still looks correct (`npm run dev`, or `node test/serve-demo.mjs` for the harness path).
 - Update `SKILL.md` if you add or change anything that affects how agents author the JSON model.
 - No new dependencies without a good reason — the runtime dep list should stay minimal.

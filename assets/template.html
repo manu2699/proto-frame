@@ -10,21 +10,40 @@
      is the prebuilt React app wireframe-app.js — copied verbatim, never edited.
      ============================================================================ -->
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wireframe</title>
+  <title>Proto-frames</title>
   <link rel="stylesheet" href="wireframe.css" />
 </head>
+
 <body>
+  <!-- SVG filter for sketch mode hand-drawn effect (referenced by CSS filter: url(#wf-sketch-filter)) -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <filter id="wf-sketch-filter" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="turbulence" baseFrequency="0.02 0.06" numOctaves="3" seed="7" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
   <div id="wf-root">
-    <div id="wf-loading" style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#71717a;background:#f4f4f5">
+    <div id="wf-loading"
+      style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#71717a;background:#f4f4f5">
       <svg width="20" height="20" viewBox="0 0 20 20" style="animation:wf-spin .8s linear infinite">
-        <circle cx="10" cy="10" r="8" fill="none" stroke="#d4d4d8" stroke-width="2"/>
-        <path d="M10 2a8 8 0 0 1 8 8" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="10" cy="10" r="8" fill="none" stroke="#d4d4d8" stroke-width="2" />
+        <path d="M10 2a8 8 0 0 1 8 8" fill="none" stroke="#3f3f46" stroke-width="2" stroke-linecap="round" />
       </svg>
-      <div style="font-size:13px;font-weight:500">Loading wireframe…</div>
-      <style>@keyframes wf-spin{to{transform:rotate(360deg)}}</style>
+      <div style="font-size:13px;font-weight:500">Loading proto-frames…</div>
+      <style>
+        @keyframes wf-spin {
+          to {
+            transform: rotate(360deg)
+          }
+        }
+      </style>
     </div>
   </div>
 
@@ -131,4 +150,5 @@
 
   <script src="wireframe-app.js"></script>
 </body>
+
 </html>

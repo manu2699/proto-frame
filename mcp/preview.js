@@ -8,6 +8,7 @@
 import fs from "fs";
 import path from "path";
 import http from "http";
+import crypto from "crypto";
 import { exec } from "child_process";
 import { fileURLToPath } from "url";
 import * as store from "./store.js";
@@ -19,6 +20,15 @@ const ASSETS_DIR = path.join(__dirname, "..", "assets");
 const TEMPLATE_HTML = fs.readFileSync(path.join(ASSETS_DIR, "template.html"), "utf8");
 const CACHED_CSS = fs.readFileSync(path.join(ASSETS_DIR, "wireframe.css"));
 const CACHED_JS = fs.readFileSync(path.join(ASSETS_DIR, "dist", "wireframe-app.js"));
+
+// Per-process secret required on every /feedback POST. Without it, any other
+// origin open in the same browser (or another localhost process) could POST a
+// forged "WIREFRAME APPROVED"/"WIREFRAME FEEDBACK" block that the agent would
+// treat as real user input — CORS "simple requests" (e.g. Content-Type:
+// text/plain) aren't preflighted, so the browser lets that POST through even
+// though it can't read the response. Only a page that can read this served
+// HTML (same-origin) ever learns the token.
+const SESSION_TOKEN = crypto.randomBytes(16).toString("hex");
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -38,6 +48,7 @@ function sseBootstrap(slug) {
 <script>
 (function () {
   var slug = ${JSON.stringify(slug)};
+  var token = ${JSON.stringify(SESSION_TOKEN)};
   var es, ready = false;
   var BKEY = 'wf-bl-' + slug;
   function getLs() { try { return JSON.parse(localStorage.getItem(BKEY)||'[]'); } catch(e){ return []; } }
@@ -100,7 +111,7 @@ function sseBootstrap(slug) {
     fetch("/" + encodeURIComponent(slug) + "/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ block: block })
+      body: JSON.stringify({ block: block, token: token })
     })
     .then(function (res) {
       if (res.ok) {
@@ -224,9 +235,10 @@ function composeHtml(slug) {
   const f = store.get(slug);
   if (!f.model) return null;
 
+  const modelJson = JSON.stringify(f.model, null, 2);
   let html = TEMPLATE_HTML.replace(
     /(<script[^>]+id="wf-model"[^>]*>)([\s\S]*?)(<\/script>)/,
-    `$1\n${JSON.stringify(f.model, null, 2)}\n$3`,
+    (_, open, _inner, close) => `${open}\n${modelJson}\n${close}`,
   );
   const boot = sseBootstrap(slug);
   html = html.includes("</body>")
@@ -235,14 +247,34 @@ function composeHtml(slug) {
   return html;
 }
 
+function landingPage() {
+  const slugs = store.listSlugs();
+  const items = slugs.length
+    ? slugs.map((s) => `<li><a href="/${encodeURIComponent(s)}/wireframe.html">${s}</a></li>`).join("")
+    : "<li class=\"empty\">No wireframes open yet.</li>";
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Proto-frames</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#3f3f46;background:#f4f4f5}
+main{max-width:420px;padding:32px}h1{font-size:15px;font-weight:600;margin-bottom:12px}ul{list-style:none}li{padding:6px 0;border-bottom:1px dashed #d4d4d8}li.empty{color:#a1a1aa;font-style:italic;border-bottom:none}a{color:#0988c8;text-decoration:none;font-size:13px}a:hover{text-decoration:underline}</style>
+</head><body><main><h1>proto-frames — active wireframes</h1><ul>${items}</ul></main></body></html>`;
+}
+
 function handleRequest(req, res) {
   const url = new URL(req.url, "http://localhost");
   const parts = url.pathname.split("/").filter(Boolean);
   const slug = parts[0];
   const file = parts[1] || "wireframe.html";
-  debug("http", `${req.method} ${url.pathname}`, { slug, hasModel: !!(slug && store.get(slug).model) });
+  debug("http", `${req.method} ${url.pathname}`, { slug, hasModel: !!(slug && store.has(slug) && store.get(slug).model) });
 
   if (!slug) {
+    res.writeHead(200, { "content-type": MIME[".html"] }).end(landingPage());
+    return;
+  }
+
+  // Only routes for a feature slug that was actually opened via wireframe_open
+  // get past this point — everything else (favicon.ico, typos, scans) is a
+  // plain 404 instead of silently creating a phantom store entry that would
+  // otherwise sit forever showing an infinite-refresh "waiting" page.
+  if (!store.has(slug)) {
     res.writeHead(404).end("Not found");
     return;
   }
@@ -272,11 +304,25 @@ function handleRequest(req, res) {
   }
 
   if (file === "feedback" && req.method === "POST") {
+    // Content-Type must be exactly application/json: a cross-origin page can
+    // send a CORS "simple request" (text/plain, form-urlencoded, ...) without
+    // a preflight, so rejecting anything else blocks that vector outright.
+    const contentType = (req.headers["content-type"] || "").split(";")[0].trim();
+    if (contentType !== "application/json") {
+      warn("http", `feedback POST rejected — bad content-type`, { slug, contentType });
+      res.writeHead(415).end("Content-Type must be application/json");
+      return;
+    }
     let body = "";
     req.on("data", (chunk) => { body += chunk; });
     req.on("end", () => {
       try {
         const parsed = JSON.parse(body);
+        if (parsed.token !== SESSION_TOKEN) {
+          warn("http", `feedback POST rejected — bad session token`, { slug });
+          res.writeHead(403).end("Invalid session token");
+          return;
+        }
         if (typeof parsed.block === "string") {
           store.ingestBlock(slug, parsed.block);
           res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify({ ok: true }));
@@ -322,8 +368,8 @@ function handleRequest(req, res) {
 
 export function start() {
   if (httpServer) return Promise.resolve();
-  return new Promise((resolve) => {
-    httpServer = http.createServer(handleRequest);
+  return new Promise((resolve, reject) => {
+    const server = http.createServer(handleRequest);
 
     onLog((entry) => {
       store.broadcastLog(entry);
@@ -332,11 +378,21 @@ export function start() {
     const heartbeat = setInterval(() => {
       store.keepAlive();
     }, 25000);
-    httpServer.on("close", () => clearInterval(heartbeat));
+    server.on("close", () => clearInterval(heartbeat));
+
+    // Without this, a bad WF_PORT (e.g. already in use) leaves the promise
+    // pending forever instead of surfacing the failure to the MCP tool call.
+    server.on("error", (err) => {
+      clearInterval(heartbeat);
+      httpServer = null;
+      warn("http", `server failed to start`, { error: err.message });
+      reject(err);
+    });
 
     const port = process.env.WF_PORT ? parseInt(process.env.WF_PORT, 10) : 0;
-    httpServer.listen(port, "127.0.0.1", () => {
-      baseUrl = `http://127.0.0.1:${httpServer.address().port}`;
+    server.listen(port, "127.0.0.1", () => {
+      httpServer = server;
+      baseUrl = `http://127.0.0.1:${server.address().port}`;
       info("http", `server listening on ${baseUrl}`);
       resolve();
     });

@@ -10,10 +10,12 @@ export function BadgeBox(props: { node: WFNode & { _id?: string } }) {
   const n = props.node;
 
   const variant = n.variant || "default";
+  const isError = variant === "error";
+  const paddingCls = isError ? "py-0 px-2" : "py-0.5 px-2.5";
 
   const box = (
     <div
-      className={"wf-box wf-badge-box wf-badge-" + variant + " " + modClasses(n)}
+      className={`wf-box wf-badge-box wf-badge-${variant} inline-flex items-center justify-center min-h-[18px] ${paddingCls} rounded-full min-w-0 ${modClasses(n)}`}
       data-wf-id={n._id}
       data-wf-commented={wf.pinOf(n._id) > 0 ? "1" : undefined}
       data-kind={n.kind}
