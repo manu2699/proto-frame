@@ -217,13 +217,9 @@
   display: none;
 }
 
-/* Dot-grid texture for the canvas background */
+/* Canvas background: flat white/black, follows theme */
 .wf-canvas-dotgrid {
-  background-color: var(--background);
-  background-image: radial-gradient(circle,
-      color-mix(in srgb, var(--border) 90%, transparent) 1px,
-      transparent 1px);
-  background-size: 18px 18px;
+  background-color: var(--wf-bg);
 }
 
 /* In comment mode, every annotatable box signals it's clickable + shows hover feedback. */

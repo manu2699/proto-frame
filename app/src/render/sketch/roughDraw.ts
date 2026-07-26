@@ -6,7 +6,7 @@ import type { RoughSVG } from "roughjs/bin/svg";
 import type { Options } from "roughjs/bin/core";
 
 export const DEFAULT_ROUGHNESS = 1.125;
-export const DEFAULT_BOWING = 1.4;
+export const DEFAULT_BOWING = 0.9;
 export const DEFAULT_STROKE_WIDTH = 1.125;
 export const DEFAULT_SKETCH_RADIUS_FALLBACK = 8;
 
@@ -16,7 +16,7 @@ export const DEFAULT_SKETCH_RADIUS_FALLBACK = 8;
 // cols, header/footer separators) sit next to straight text and grid
 // content, so they stay comparatively tame or the whole component reads
 // messy.
-export const BORDER_ROUGHNESS = DEFAULT_ROUGHNESS + 0.5;
+export const BORDER_ROUGHNESS = DEFAULT_ROUGHNESS + 0.2;
 export const LINE_ROUGHNESS = 0.7;
 export const LINE_BOWING = 0.6;
 
@@ -62,6 +62,30 @@ export function drawRoughRect(rc: RoughSVG, w: number, h: number, r: number, opt
 
 export function drawRoughCircle(rc: RoughSVG, cx: number, cy: number, diameter: number, opts: Options): SVGGElement {
   return rc.circle(cx, cy, diameter, opts);
+}
+
+/**
+ * Re-inks one full straight edge of a (possibly rounded) `w`×`h` rect with a
+ * second jittered pass — the natural "pencil went over this line twice"
+ * look, confined to a single side instead of every edge (which is what
+ * rough.js's own multi-stroke mode does, and reads as messy at corners).
+ * `seed` picks which of the 4 edges so it's stable for a given box but
+ * varies box-to-box.
+ */
+export function drawEdgeAccent(rc: RoughSVG, w: number, h: number, r: number, seed: number, opts: Options): SVGGElement {
+  const rr = Math.max(0, Math.min(r, w / 2, h / 2));
+  const edges = [
+    { x1: rr, y1: 0, x2: w - rr, y2: 0 }, // top
+    { x1: w, y1: rr, x2: w, y2: h - rr }, // right
+    { x1: w - rr, y1: h, x2: rr, y2: h }, // bottom
+    { x1: 0, y1: h - rr, x2: 0, y2: rr }, // left
+  ];
+  const e = edges[((seed % 4) + 4) % 4];
+  return rc.line(e.x1, e.y1, e.x2, e.y2, {
+    ...opts,
+    seed: seed + 53,
+    roughness: (opts.roughness ?? DEFAULT_ROUGHNESS) * 1.3,
+  });
 }
 
 /**

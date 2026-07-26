@@ -1,5 +1,6 @@
 // Raw escape hatch: render author-supplied HTML inside a commentable box.
 
+import DOMPurify from "dompurify";
 import type { WFNode } from "../types";
 import { Pin } from "./Pin";
 import { useWF, handleClick } from "./context";
@@ -16,7 +17,7 @@ export function Raw(props: { node: WFNode & { _id?: string } }) {
       onClick={(e) => handleClick(wf, n._id, n.goto, n.opens, e)}
     >
       <Pin id={n._id} />
-      <div dangerouslySetInnerHTML={{ __html: n.html || "" }} />
+      <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(n.html || "") }} />
     </div>
   );
 }

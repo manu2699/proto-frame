@@ -107,6 +107,90 @@ function collectNewChanged(model: WFModel, metaOf: MetaLookup): Array<{ id: stri
   return out;
 }
 
+function buildScreensSection(model: WFModel): string[] {
+  const lines: string[] = ["## Screens"];
+  for (const sc of model.screens) {
+    const role = sc.role ? " [" + sc.role + "]" : "";
+    const stateNames = (sc.states || []).map((st) => st.id).filter((id) => id !== "default");
+    const stateStr = stateNames.length ? " (states: default, " + stateNames.join(", ") + ")" : "";
+    lines.push("- " + sc.id + ": " + sc.name + role + stateStr);
+  }
+  lines.push("");
+  return lines;
+}
+
+function buildModalsSection(model: WFModel): string[] {
+  if (!model.modals?.length) return [];
+  const lines: string[] = ["## Modals"];
+  for (const md of model.modals) {
+    const forms = collectFormFields(md.nodes);
+    lines.push("- " + md.id + ": " + md.name);
+    for (const f of forms) {
+      lines.push("  Fields: " + f.fields.join(", "));
+    }
+  }
+  lines.push("");
+  return lines;
+}
+
+function buildFlowSection(model: WFModel): string[] {
+  if (!model.flows?.length) return [];
+  const lines: string[] = ["## Flow"];
+  for (const f of model.flows) {
+    lines.push("- " + f.from + " → [" + f.via + "] → " + f.to);
+  }
+  lines.push("");
+  return lines;
+}
+
+function buildNewChangedSection(model: WFModel, metaOf: MetaLookup): string[] {
+  const nc = collectNewChanged(model, metaOf);
+  if (!nc.length) return [];
+  const lines: string[] = ["## New & Changed Elements"];
+  for (const el of nc) {
+    lines.push("- [#" + el.id + '] "' + el.label + '" on ' + el.screen + " — ✦ " + el.marker);
+  }
+  lines.push("");
+  return lines;
+}
+
+function buildFormFieldsSection(model: WFModel): string[] {
+  const allForms: Array<{ screen: string; label: string; fields: string[] }> = [];
+  for (const sc of model.screens) {
+    for (const st of sc.states ?? []) {
+      const found = collectFormFields(st.nodes);
+      for (const f of found) f.screen = sc.name;
+      allForms.push(...found);
+    }
+  }
+  if (!allForms.length) return [];
+  const lines: string[] = ["## Form Fields (in-screen)"];
+  for (const f of allForms) {
+    lines.push("- " + f.screen + " / " + f.label + ": " + f.fields.join(", "));
+  }
+  lines.push("");
+  return lines;
+}
+
+function buildMappingSection(boxes: Annotated[], openCount: number): string[] {
+  const lines: string[] = ["## Mapping (id | label | screen | state | backend | design-system | flow)"];
+  boxes.forEach((b) => {
+    let line =
+      '[#' + b.id + '] label="' + b.label + '"' +
+      ' | screen="' + b.screen + '"' +
+      ' | state="' + (b.state || "default") + '"' +
+      ' | API="' + (b.backend || "—") + '"' +
+      ' | COMPONENT="' + (b.ds || "—") + '"';
+    if (b.flow) line += ' | FLOW="' + b.flow + '"';
+    lines.push(line);
+  });
+  lines.push("");
+  lines.push(openCount
+    ? "⚠ " + openCount + " comment" + (openCount === 1 ? "" : "s") + " still open — resolve or confirm before building."
+    : "No open comments.");
+  return lines;
+}
+
 export function buildApproval(model: WFModel, comments: Record<string, Comment>, metaOf: MetaLookup): string {
   const boxes = collectAnnotated(model, metaOf);
   const openCount = Object.keys(comments).length;
@@ -126,81 +210,12 @@ export function buildApproval(model: WFModel, comments: Record<string, Comment>,
     lines.push("");
   }
 
-  // Screen breakdown with roles and states
-  lines.push("## Screens");
-  for (const sc of model.screens) {
-    const role = sc.role ? " [" + sc.role + "]" : "";
-    const stateNames = (sc.states || []).map((st) => st.id).filter((id) => id !== "default");
-    const stateStr = stateNames.length ? " (states: default, " + stateNames.join(", ") + ")" : "";
-    lines.push("- " + sc.id + ": " + sc.name + role + stateStr);
-  }
-  lines.push("");
-
-  // Modals
-  if (model.modals?.length) {
-    lines.push("## Modals");
-    for (const md of model.modals) {
-      const forms = collectFormFields(md.nodes);
-      lines.push("- " + md.id + ": " + md.name);
-      for (const f of forms) {
-        lines.push("  Fields: " + f.fields.join(", "));
-      }
-    }
-    lines.push("");
-  }
-
-  // Flow map
-  if (model.flows?.length) {
-    lines.push("## Flow");
-    for (const f of model.flows) {
-      lines.push("- " + f.from + " → [" + f.via + "] → " + f.to);
-    }
-    lines.push("");
-  }
-
-  // New/changed elements
-  const nc = collectNewChanged(model, metaOf);
-  if (nc.length) {
-    lines.push("## New & Changed Elements");
-    for (const el of nc) {
-      lines.push("- [#" + el.id + '] "' + el.label + '" on ' + el.screen + " — ✦ " + el.marker);
-    }
-    lines.push("");
-  }
-
-  // Form fields per screen
-  const allForms: Array<{ screen: string; label: string; fields: string[] }> = [];
-  for (const sc of model.screens) {
-    for (const st of sc.states ?? []) {
-      const found = collectFormFields(st.nodes);
-      for (const f of found) f.screen = sc.name;
-      allForms.push(...found);
-    }
-  }
-  if (allForms.length) {
-    lines.push("## Form Fields (in-screen)");
-    for (const f of allForms) {
-      lines.push("- " + f.screen + " / " + f.label + ": " + f.fields.join(", "));
-    }
-    lines.push("");
-  }
-
-  // Annotated box mapping (existing)
-  lines.push("## Mapping (id | label | screen | state | backend | design-system | flow)");
-  boxes.forEach((b) => {
-    let line =
-      '[#' + b.id + '] label="' + b.label + '"' +
-      ' | screen="' + b.screen + '"' +
-      ' | state="' + (b.state || "default") + '"' +
-      ' | API="' + (b.backend || "—") + '"' +
-      ' | COMPONENT="' + (b.ds || "—") + '"';
-    if (b.flow) line += ' | FLOW="' + b.flow + '"';
-    lines.push(line);
-  });
-  lines.push("");
-  lines.push(openCount
-    ? "⚠ " + openCount + " comment" + (openCount === 1 ? "" : "s") + " still open — resolve or confirm before building."
-    : "No open comments.");
+  lines.push(...buildScreensSection(model));
+  lines.push(...buildModalsSection(model));
+  lines.push(...buildFlowSection(model));
+  lines.push(...buildNewChangedSection(model, metaOf));
+  lines.push(...buildFormFieldsSection(model));
+  lines.push(...buildMappingSection(boxes, openCount));
   lines.push("===== END APPROVAL (" + boxes.length + " mapped box" + (boxes.length === 1 ? "" : "es") + ", " + openCount + " open comment" + (openCount === 1 ? "" : "s") + ") =====");
   return lines.join("\n");
 }

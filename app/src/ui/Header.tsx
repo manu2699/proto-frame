@@ -100,14 +100,14 @@ export function Header(props: {
         <BrandMark />
         <div className="flex justify-center leading-none gap-3 items-center">
           <span
-            className="text-[18px] font-semibold leading-none text-foreground"
+            className="text-xl font-medium leading-none text-foreground"
             style={{ fontFamily: "'Patrick Hand', sans-serif", letterSpacing: "0.03em" }}
           >
             proto-frames
           </span>
           <span className="w-1 h-5 border-r border-gray-300" />
           <div className="flex items-center gap-1.5">
-            <span className="max-w-[180px] truncate text-[12px]">{props.feature}</span>
+            <span className="max-w-45 truncate text-[12px]">{props.feature}</span>
             <Popover>
               <PopoverTrigger asChild>
                 <button

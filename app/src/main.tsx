@@ -14,6 +14,10 @@ declare global {
 
 const container = document.getElementById("wf-root")!;
 
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+}
+
 try {
   const { model, meta } = readModel();
   const storage = localStorageAdapter("wfc:" + location.pathname);
@@ -31,7 +35,7 @@ try {
   container.innerHTML =
     `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;font-family:-apple-system,sans-serif;color:#71717a;padding:40px">` +
     `<div style="font-size:14px;font-weight:600;color:#ef4444">Wireframe failed to load</div>` +
-    `<pre style="font-size:12px;background:#fef2f2;border:1px solid #fecaca;padding:12px 16px;border-radius:6px;max-width:600px;white-space:pre-wrap;color:#991b1b">${msg}</pre>` +
+    `<pre style="font-size:12px;background:#fef2f2;border:1px solid #fecaca;padding:12px 16px;border-radius:6px;max-width:600px;white-space:pre-wrap;color:#991b1b">${escapeHtml(msg)}</pre>` +
     `<div style="font-size:11px">Check that the agent passed a valid model with a "screens" array.</div>` +
     `</div>`;
 }

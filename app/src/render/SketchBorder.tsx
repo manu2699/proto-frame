@@ -12,6 +12,7 @@ import {
   DEFAULT_BOWING,
   DEFAULT_SKETCH_RADIUS_FALLBACK,
   DEFAULT_STROKE_WIDTH,
+  drawEdgeAccent,
   drawRoughCircle,
   drawRoughRect,
   resolveStrokeAndFill,
@@ -43,6 +44,11 @@ export function SketchBorder({
   shape = "rect",
 }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
+  // rough.js "bowing" offsets scale with edge length, so long edges can wobble
+  // several px past a stroke-width-only pad; without this headroom the
+  // overshoot gets clipped by the SVG's own bounds, making long borders read
+  // as randomly faint/broken per seed.
+  const bleed = Math.max(6, bowing * 4);
 
   useEffect(() => {
     const svg = svgRef.current;
@@ -62,9 +68,9 @@ export function SketchBorder({
       prevW = w;
       prevH = h;
 
-      svg.setAttribute("width", String(w));
-      svg.setAttribute("height", String(h));
-      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+      svg.setAttribute("width", String(w + bleed * 2));
+      svg.setAttribute("height", String(h + bleed * 2));
+      svg.setAttribute("viewBox", `0 0 ${w + bleed * 2} ${h + bleed * 2}`);
 
       while (svg.firstChild) svg.removeChild(svg.firstChild);
 
@@ -80,19 +86,26 @@ export function SketchBorder({
         fill: resolvedFill,
         fillStyle,
         seed: Math.floor(w * 3 + h * 7),
+        // Single stroke pass per edge, vertices pinned to the true corners —
+        // rough.js's default double-pass (two independent jittered strokes
+        // per edge) is what reads as "hooks" poking out past each corner.
+        disableMultiStroke: true,
+        preserveVertices: true,
       };
 
       let node;
       if (shape === "circle") {
         const diameter = Math.min(w, h) - pad * 2;
-        node = drawRoughCircle(rc, w / 2, h / 2, diameter, drawOpts);
+        node = drawRoughCircle(rc, w / 2 + bleed, h / 2 + bleed, diameter, drawOpts);
       } else {
         const parentRadius = parseFloat(getComputedStyle(parent).borderRadius) || DEFAULT_SKETCH_RADIUS_FALLBACK;
         const innerW = w - pad * 2;
         const innerH = h - pad * 2;
         const radius = Math.max(0, parentRadius - pad);
-        node = drawRoughRect(rc, innerW, innerH, radius, drawOpts);
-        node.setAttribute("transform", `translate(${pad}, ${pad})`);
+        node = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        node.appendChild(drawRoughRect(rc, innerW, innerH, radius, drawOpts));
+        node.appendChild(drawEdgeAccent(rc, innerW, innerH, radius, drawOpts.seed, drawOpts));
+        node.setAttribute("transform", `translate(${pad + bleed}, ${pad + bleed})`);
       }
       svg.appendChild(node);
     };
@@ -117,7 +130,10 @@ export function SketchBorder({
       className="wf-sketch-border"
       style={{
         position: "absolute",
-        inset: 0,
+        top: -bleed,
+        left: -bleed,
+        right: -bleed,
+        bottom: -bleed,
         pointerEvents: "none",
         overflow: "hidden",
         zIndex: -1,
